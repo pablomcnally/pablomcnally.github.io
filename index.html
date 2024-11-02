@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>End of Cambodia</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            margin: 0;
+            background-color: #282c34;
+            color: #61dafb;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        #countdown, #total-hours, #total-minutes, #current-leg, #current-time {
+            font-size: 1.8em;
+            margin: 10px 0;
+        }
+        #current-time {
+            font-size: 1.2em;
+            color: #a8d1e7;
+        }
+        table {
+            margin-top: 20px;
+            border-collapse: collapse;
+            width: 90%;
+            color: #61dafb;
+            font-size: 0.8em;
+        }
+        th, td {
+            border: 1px solid #61dafb;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #444;
+        }
+        .highlight {
+            background-color: yellow;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <h1>End of Cambodia</h1>
+    <div id="current-time">Current Time in Cambodia: Loading...</div>
+    <div id="countdown">Loading...</div>
+    <div id="total-hours">Total Hours: Calculating...</div>
+    <div id="total-minutes">Total Minutes: Calculating...</div>
+    <div id="current-leg">Current Leg: Loading...</div>
+
+    <!-- Main Trek Itinerary Table -->
+    <h2>Trek Itinerary</h2>
+    <table id="itinerary-table">
+        <thead>
+            <tr>
+                <th>Leg #</th>
+                <th>Date</th>
+                <th>Location</th>
+                <th>Accommodation</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>1</td><td>Nov 3</td><td>Depart UK</td><td>N/A</td><td>Flight SQ305, 09:10 LHR - 06:00 SIN; connecting Flight SQ164, 08:40 SIN - 09:45 SAI</td></tr>
+            <tr><td>2</td><td>Nov 4</td><td>Arrive Siem Reap</td><td>Somadevi Angkor Resort & Spa</td><td>Dinner: Local restaurant</td></tr>
+            <tr>
+                <td>3</td>
+                <td><a href="https://ridewithgps.com/trips/40622571" target="_blank">Nov 5</a></td>
+                <td>Siem Reap to Wat Preah Bat Bunthan</td>
+                <td>Campsite</td>
+                <td>Distance: 9.6 miles (15.4 km), Mixed terrain<br>Highlights: Passes through villages, views of rural life<br>Meals: Breakfast at hotel, Lunch packed, Dinner at campsite</td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td><a href="https://ridewithgps.com/trips/41039029" target="_blank">Nov 6</a></td>
+                <td>Wat Preah Bat Bunthan to Svay Leu</td>
+                <td>Svay Leu Pagoda Campsite</td>
+                <td>Distance: 9.6 miles (15.4 km), Mixed terrain with some hills<br>Highlights: Passes through dense forests and small villages, glimpses of wildlife and rural life<br>Meals: Breakfast at campsite, Lunch packed, Dinner at campsite</td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td><a href="https://ridewithgps.com/trips/41491983" target="_blank">Nov 7</a></td>
+                <td>Svay Leu to Kulen Mountain</td>
+                <td>Kulen Mountain Campsite</td>
+                <td>Distance: 12.5 miles (20.1 km), Mixed terrain with some hills<br>Highlights: Passes through dense forests, small villages, views of wildlife and rural life<br>Meals: Breakfast at campsite, Lunch packed, Dinner at campsite</td>
+            </tr>
+            <tr>
+                <td>6</td>
+                <td><a href="https://ridewithgps.com/trips/42280468" target="_blank">Nov 8</a></td>
+                <td>Kulen Mountain to Tbang</td>
+                <td>Tbang Pagoda Campsite</td>
+                <td>Distance: 13.1 miles (21.1 km), Mixed terrain with hills<br>Highlights: Passes through dense forests, small villages, and views of local wildlife<br>Meals: Breakfast at campsite, Lunch packed, Dinner at campsite</td>
+            </tr>
+            <tr>
+                <td>7</td>
+                <td><a href="https://ridewithgps.com/routes/31545397" target="_blank">Nov 9</a></td>
+                <td>Tbang to Angkor Wat</td>
+                <td>Somadevi Angkor Resort & Spa</td>
+                <td>Distance: 4.1 miles (6.6 km), Flat terrain<br>Highlights: Final approach to Angkor Wat, views of historic landmarks<br>Meals: Breakfast at campsite, Lunch at local restaurant, Dinner at local restaurant</td>
+            </tr>
+            <tr><td>8</td><td>Nov 10</td><td>Depart Siem Reap</td><td>N/A</td><td>Flight SQ165, 16:40 SAI - 20:05 SIN, Flight SQ322, 23:45 SIN - 05:55 LHR</td></tr>
+            <tr><td>9</td><td>Nov 11</td><td>Arrive UK</td><td>N/A</td><td>N/A</td></tr>
+        </tbody>
+    </table>
+
+    <!-- Flight Information in UK Time -->
+    <h2>Flight Times (UK Time)</h2>
+    <table id="flight-table">
+        <thead>
+            <tr>
+                <th>Flight</th>
+                <th>Departure (Local)</th>
+                <th>Departure (UK)</th>
+                <th>Arrival (Local)</th>
+                <th>Arrival (UK)</th>
+                <th>Duration</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Flight SQ305</td>
+                <td>Nov 3, 09:10 (LHR)</td>
+                <td>Nov 3, 09:10 (UK)</td>
+                <td>Nov 4, 06:00 (SIN)</td>
+                <td>Nov 3, 22:00 (UK)</td>
+                <td>12h 50m</td>
+            </tr>
+            <tr>
+                <td>Flight SQ164</td>
+                <td>Nov 4, 08:40 (SIN)</td>
+                <td>Nov 4, 00:40 (UK)</td>
+                <td>Nov 4, 09:45 (REP)</td>
+                <td>Nov 4, 02:45 (UK)</td>
+                <td>2h 5m</td>
+            </tr>
+            <tr>
+                <td>Flight SQ165</td>
+                <td>Nov 10, 16:40 (REP)</td>
+                <td>Nov 10, 09:40 (UK)</td>
+                <td>Nov 10, 20:05 (SIN)</td>
+                <td>Nov 10, 12:05 (UK)</td>
+                <td>2h 25m</td>
+            </tr>
+            <tr>
+                <td>Flight SQ322</td>
+                <td>Nov 10, 23:45 (SIN)</td>
+                <td>Nov 10, 15:45 (UK)</td>
+                <td>Nov 11, 05:55 (LHR)</td>
+                <td>Nov 11, 05:55 (UK)</td>
+                <td>13h 10m</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        const targetDate = new Date("November 11, 2024 12:00:00").getTime();
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+
+            if (distance >= 0) {
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                document.getElementById("countdown").innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+                document.getElementById("total-hours").innerHTML = `Total Hours: ${(distance / (1000 * 60 * 60)).toFixed(1)}`;
+                document.getElementById("total-minutes").innerHTML = `Total Minutes: ${Math.floor(distance / (1000 * 60))}`;
+            } else {
+                clearInterval(countdownInterval);
+                document.getElementById("countdown").innerHTML = "It's time!";
+                document.getElementById("total-hours").innerHTML = "";
+                document.getElementById("total-minutes").innerHTML = "";
+                document.getElementById("current-leg").innerHTML = "All legs completed!";
+            }
+        }
+
+        const countdownInterval = setInterval(updateCountdown, 1000);
+
+        function updateCambodiaTime() {
+            const cambodiaTime = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Phnom_Penh" }));
+            document.getElementById("current-time").innerHTML = `Current Time in Cambodia: ${cambodiaTime.toLocaleTimeString()}`;
+        }
+        setInterval(updateCambodiaTime, 1000);
+
+        const itinerary = [
+            { leg: 1, date: "Nov 3", description: "Depart UK" },
+            { leg: 2, date: "Nov 4", description: "Arrive Siem Reap" },
+            { leg: 3, date: "Nov 5", description: "Siem Reap to Wat Preah Bat Bunthan" },
+            { leg: 4, date: "Nov 6", description: "Wat Preah Bat Bunthan to Svay Leu" },
+            { leg: 5, date: "Nov 7", description: "Svay Leu to Kulen Mountain" },
+            { leg: 6, date: "Nov 8", description: "Kulen Mountain to Tbang" },
+            { leg: 7, date: "Nov 9", description: "Tbang to Angkor Wat" },
+            { leg: 8, date: "Nov 10", description: "Depart Siem Reap" },
+            { leg: 9, date: "Nov 11", description: "Arrive UK" }
+        ];
+
+        function updateCurrentLeg() {
+            const today = new Date().toLocaleDateString("en-US", { month: 'short', day: 'numeric' });
+            const currentLeg = itinerary.find(leg => leg.date === today);
+
+            document.getElementById("current-leg").innerHTML = currentLeg 
+                ? `Current Leg #${currentLeg.leg}: ${currentLeg.description}` 
+                : "Current Leg: Not started or completed";
+        }
+        setInterval(updateCurrentLeg, 1000);
+    </script>
+</body>
+</html>
