@@ -19,11 +19,11 @@
             font-size: 2.5em;
             margin-bottom: 20px;
         }
-        #countdown, #total-hours, #total-minutes, #current-leg, #current-time, #flight-time-remaining {
+        #countdown, #total-hours, #total-minutes, #current-leg, #current-time, #flight-time-remaining, #uk-time {
             font-size: 1.8em;
             margin: 10px 0;
         }
-        #current-time {
+        #current-time, #uk-time {
             font-size: 1.2em;
             color: #a8d1e7;
         }
@@ -51,6 +51,7 @@
 <body>
     <h1>Jodie's Cambodia Trip</h1>
     <div id="current-time">Current Time in Cambodia: Loading...</div>
+    <div id="uk-time">Current Time in UK: Loading...</div>
     <div id="countdown">Loading...</div>
     <div id="total-hours">Total Hours: Calculating...</div>
     <div id="total-minutes">Total Minutes: Calculating...</div>
@@ -220,15 +221,20 @@
         const countdownInterval = setInterval(updateCountdown, 1000);
         setInterval(updateFlightCountdown, 1000);
 
-        function updateCambodiaTime() {
+        function updateCambodiaAndUKTime() {
             const cambodiaTime = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Phnom_Penh" }));
+            const ukTime = new Date(new Date().toLocaleString("en-GB", { timeZone: "Europe/London" }));
             
-            const time24Hour = cambodiaTime.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            const time12Hour = cambodiaTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+            const cambodiaTime24Hour = cambodiaTime.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const cambodiaTime12Hour = cambodiaTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
 
-            document.getElementById("current-time").innerHTML = `Current Time in Cambodia: ${time24Hour} (24-hour) | ${time12Hour} (12-hour)`;
+            const ukTime24Hour = ukTime.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const ukTime12Hour = ukTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+
+            document.getElementById("current-time").innerHTML = `Current Time in Cambodia: ${cambodiaTime24Hour} (24-hour) | ${cambodiaTime12Hour} (12-hour)`;
+            document.getElementById("uk-time").innerHTML = `Current Time in UK: ${ukTime24Hour} (24-hour) | ${ukTime12Hour} (12-hour)`;
         }
-        setInterval(updateCambodiaTime, 1000);
+        setInterval(updateCambodiaAndUKTime, 1000);
 
         const itinerary = [
             { leg: 1, date: "Nov 3", description: "Depart UK" },
