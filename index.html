@@ -49,7 +49,7 @@
     </style>
 </head>
 <body>
-    <h1>End of Cambodia</h1>
+    <h1>Jodie's Cambodia Trip</h1>
     <div id="current-time">Current Time in Cambodia: Loading...</div>
     <div id="countdown">Loading...</div>
     <div id="total-hours">Total Hours: Calculating...</div>
@@ -159,7 +159,7 @@
             </tr>
         </tbody>
     </table>
-
+<p>
     <script>
         const targetDate = new Date("November 11, 2024 12:00:00").getTime();
 
@@ -189,7 +189,15 @@
 
         function updateCambodiaTime() {
             const cambodiaTime = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Phnom_Penh" }));
-            document.getElementById("current-time").innerHTML = `Current Time in Cambodia: ${cambodiaTime.toLocaleTimeString()}`;
+            
+            // 24-hour format
+            const time24Hour = cambodiaTime.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+            // 12-hour format
+            const time12Hour = cambodiaTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+
+            // Display both formats
+            document.getElementById("current-time").innerHTML = `Current Time in Cambodia: ${time24Hour} (24-hour) | ${time12Hour} (12-hour)`;
         }
         setInterval(updateCambodiaTime, 1000);
 
