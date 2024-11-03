@@ -46,6 +46,10 @@
             background-color: yellow;
             color: black;
         }
+        .completed {
+            text-decoration: line-through;
+            color: #888; /* Optional: gray color for completed flights and legs */
+        }
     </style>
 </head>
 <body>
@@ -71,45 +75,45 @@
             </tr>
         </thead>
         <tbody>
-            <tr><td>1</td><td>Nov 3</td><td>Depart UK</td><td>N/A</td><td>Flight SQ305, 09:10 LHR - 06:00 SIN; connecting Flight SQ164, 08:40 SIN - 09:45 SAI</td></tr>
-            <tr><td>2</td><td>Nov 4</td><td>Arrive Siem Reap</td><td>Somadevi Angkor Resort & Spa</td><td>Dinner: Local restaurant</td></tr>
-            <tr>
+            <tr data-leg="1"><td>1</td><td>Nov 3</td><td>Depart UK</td><td>N/A</td><td>Flight SQ305, 09:10 LHR - 06:00 SIN; connecting Flight SQ164, 08:40 SIN - 09:45 SAI</td></tr>
+            <tr data-leg="2"><td>2</td><td>Nov 4</td><td>Arrive Siem Reap</td><td>Somadevi Angkor Resort & Spa</td><td>Dinner: Local restaurant</td></tr>
+            <tr data-leg="3">
                 <td>3</td>
                 <td><a href="https://ridewithgps.com/trips/40622571" target="_blank">Nov 5</a></td>
                 <td>Siem Reap to Wat Preah Bat Bunthan</td>
                 <td>Campsite</td>
                 <td>Distance: 9.6 miles (15.4 km), Mixed terrain<br>Highlights: Passes through villages, views of rural life<br>Meals: Breakfast at hotel, Lunch packed, Dinner at campsite</td>
             </tr>
-            <tr>
+            <tr data-leg="4">
                 <td>4</td>
                 <td><a href="https://ridewithgps.com/trips/41039029" target="_blank">Nov 6</a></td>
                 <td>Wat Preah Bat Bunthan to Svay Leu</td>
                 <td>Svay Leu Pagoda Campsite</td>
                 <td>Distance: 9.6 miles (15.4 km), Mixed terrain with some hills<br>Highlights: Passes through dense forests and small villages, glimpses of wildlife and rural life<br>Meals: Breakfast at campsite, Lunch packed, Dinner at campsite</td>
             </tr>
-            <tr>
+            <tr data-leg="5">
                 <td>5</td>
                 <td><a href="https://ridewithgps.com/trips/41491983" target="_blank">Nov 7</a></td>
                 <td>Svay Leu to Kulen Mountain</td>
                 <td>Kulen Mountain Campsite</td>
                 <td>Distance: 12.5 miles (20.1 km), Mixed terrain with some hills<br>Highlights: Passes through dense forests, small villages, views of wildlife and rural life<br>Meals: Breakfast at campsite, Lunch packed, Dinner at campsite</td>
             </tr>
-            <tr>
+            <tr data-leg="6">
                 <td>6</td>
                 <td><a href="https://ridewithgps.com/trips/42280468" target="_blank">Nov 8</a></td>
                 <td>Kulen Mountain to Tbang</td>
                 <td>Tbang Pagoda Campsite</td>
                 <td>Distance: 13.1 miles (21.1 km), Mixed terrain with hills<br>Highlights: Passes through dense forests, small villages, and views of local wildlife<br>Meals: Breakfast at campsite, Lunch packed, Dinner at campsite</td>
             </tr>
-            <tr>
+            <tr data-leg="7">
                 <td>7</td>
                 <td><a href="https://ridewithgps.com/routes/31545397" target="_blank">Nov 9</a></td>
                 <td>Tbang to Angkor Wat</td>
                 <td>Somadevi Angkor Resort & Spa</td>
                 <td>Distance: 4.1 miles (6.6 km), Flat terrain<br>Highlights: Final approach to Angkor Wat, views of historic landmarks<br>Meals: Breakfast at campsite, Lunch at local restaurant, Dinner at local restaurant</td>
             </tr>
-            <tr><td>8</td><td>Nov 10</td><td>Depart Siem Reap</td><td>N/A</td><td>Flight SQ165, 16:40 SAI - 20:05 SIN, Flight SQ322, 23:45 SIN - 05:55 LHR</td></tr>
-            <tr><td>9</td><td>Nov 11</td><td>Arrive UK</td><td>N/A</td><td>N/A</td></tr>
+            <tr data-leg="8"><td>8</td><td>Nov 10</td><td>Depart Siem Reap</td><td>N/A</td><td>Flight SQ165, 16:40 SAI - 20:05 SIN, Flight SQ322, 23:45 SIN - 05:55 LHR</td></tr>
+            <tr data-leg="9"><td>9</td><td>Nov 11</td><td>Arrive UK</td><td>N/A</td><td>N/A</td></tr>
         </tbody>
     </table>
 
@@ -127,53 +131,18 @@
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>Flight SQ305</td>
-                <td>Nov 3, 09:10 (LHR)</td>
-                <td>Nov 3, 09:10 (UK)</td>
-                <td>Nov 4, 06:00 (SIN)</td>
-                <td>Nov 3, 22:00 (UK)</td>
-                <td>12h 50m</td>
-            </tr>
-            <tr>
-                <td>Flight SQ164</td>
-                <td>Nov 4, 08:40 (SIN)</td>
-                <td>Nov 4, 00:40 (UK)</td>
-                <td>Nov 4, 09:45 (REP)</td>
-                <td>Nov 4, 02:45 (UK)</td>
-                <td>2h 5m</td>
-            </tr>
-            <tr>
-                <td>Flight SQ165</td>
-                <td>Nov 10, 16:40 (REP)</td>
-                <td>Nov 10, 09:40 (UK)</td>
-                <td>Nov 10, 20:05 (SIN)</td>
-                <td>Nov 10, 12:05 (UK)</td>
-                <td>2h 25m</td>
-            </tr>
-            <tr>
-                <td>Flight SQ322</td>
-                <td>Nov 10, 23:45 (SIN)</td>
-                <td>Nov 10, 15:45 (UK)</td>
-                <td>Nov 11, 05:55 (LHR)</td>
-                <td>Nov 11, 05:55 (UK)</td>
-                <td>13h 10m</td>
-            </tr>
+            <tr data-flight="SQ305"><td>Flight SQ305</td><td>Nov 3, 09:10 (LHR)</td><td>Nov 3, 09:10 (UK)</td><td>Nov 4, 06:00 (SIN)</td><td>Nov 3, 22:00 (UK)</td><td>12h 50m</td></tr>
+            <tr data-flight="SQ164"><td>Flight SQ164</td><td>Nov 4, 08:40 (SIN)</td><td>Nov 4, 00:40 (UK)</td><td>Nov 4, 09:45 (REP)</td><td>Nov 4, 02:45 (UK)</td><td>2h 5m</td></tr>
+            <tr data-flight="SQ165"><td>Flight SQ165</td><td>Nov 10, 16:40 (REP)</td><td>Nov 10, 09:40 (UK)</td><td>Nov 10, 20:05 (SIN)</td><td>Nov 10, 12:05 (UK)</td><td>2h 25m</td></tr>
+            <tr data-flight="SQ322"><td>Flight SQ322</td><td>Nov 10, 23:45 (SIN)</td><td>Nov 10, 15:45 (UK)</td><td>Nov 11, 05:55 (LHR)</td><td>Nov 11, 05:55 (UK)</td><td>13h 10m</td></tr>
         </tbody>
     </table>
-    
+
     <!-- Spacing at the bottom -->
     <p></p>
 
     <script>
         const targetDate = new Date("November 11, 2024 12:00:00").getTime();
-        
-        const flights = [
-            { flight: "SQ305", departure: "2024-11-03T09:10:00+00:00", arrival: "2024-11-04T06:00:00+08:00" },
-            { flight: "SQ164", departure: "2024-11-04T08:40:00+08:00", arrival: "2024-11-04T09:45:00+07:00" },
-            { flight: "SQ165", departure: "2024-11-10T16:40:00+07:00", arrival: "2024-11-10T20:05:00+08:00" },
-            { flight: "SQ322", departure: "2024-11-10T23:45:00+08:00", arrival: "2024-11-11T05:55:00+00:00" }
-        ];
 
         function updateCountdown() {
             const now = new Date().getTime();
@@ -197,29 +166,56 @@
             }
         }
 
-        function updateFlightCountdown() {
+        function updateCompletedLegsAndFlights() {
             const now = new Date();
 
-            const activeFlight = flights.find(flight => 
-                new Date(flight.departure) <= now && new Date(flight.arrival) > now
-            );
+            // Check for completed legs in the itinerary table
+            document.querySelectorAll("table#itinerary-table tbody tr").forEach(row => {
+                const legDateText = row.cells[1].textContent;
+                const legDate = new Date(`${legDateText}, 2024`);
+                
+                if (legDate < now) {
+                    row.classList.add("completed");
+                }
+            });
 
-            if (activeFlight) {
-                const arrivalTime = new Date(activeFlight.arrival).getTime();
-                const remainingTime = arrivalTime - now.getTime();
+            // Check for completed flights in the flight table
+            document.querySelectorAll("table#flight-table tbody tr").forEach(row => {
+                const arrivalDateText = row.cells[3].textContent;
+                const arrivalDateTime = Date.parse(`2024 ${arrivalDateText}`);
 
-                const hours = Math.floor(remainingTime / (1000 * 60 * 60));
-                const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
-
-                document.getElementById("flight-time-remaining").innerHTML = `Flight ${activeFlight.flight} - Time Remaining: ${hours}h ${minutes}m ${seconds}s`;
-            } else {
-                document.getElementById("flight-time-remaining").innerHTML = "";
-            }
+                if (arrivalDateTime < now.getTime()) {
+                    row.classList.add("completed");
+                }
+            });
         }
 
-        const countdownInterval = setInterval(updateCountdown, 1000);
-        setInterval(updateFlightCountdown, 1000);
+        function updateCurrentLeg() {
+            const today = new Date().toLocaleDateString("en-US", { month: 'short', day: 'numeric' });
+            const currentLeg = itinerary.find(leg => leg.date === today);
+
+            document.getElementById("current-leg").innerHTML = currentLeg 
+                ? `Current Leg #${currentLeg.leg}: ${currentLeg.description}` 
+                : "Current Leg: Not started or completed";
+        }
+
+        const itinerary = [
+            { leg: 1, date: "Nov 3", description: "Depart UK" },
+            { leg: 2, date: "Nov 4", description: "Arrive Siem Reap" },
+            { leg: 3, date: "Nov 5", description: "Siem Reap to Wat Preah Bat Bunthan" },
+            { leg: 4, date: "Nov 6", description: "Wat Preah Bat Bunthan to Svay Leu" },
+            { leg: 5, date: "Nov 7", description: "Svay Leu to Kulen Mountain" },
+            { leg: 6, date: "Nov 8", description: "Kulen Mountain to Tbang" },
+            { leg: 7, date: "Nov 9", description: "Tbang to Angkor Wat" },
+            { leg: 8, date: "Nov 10", description: "Depart Siem Reap" },
+            { leg: 9, date: "Nov 11", description: "Arrive UK" }
+        ];
+
+        const countdownInterval = setInterval(() => {
+            updateCountdown();
+            updateCompletedLegsAndFlights();
+            updateCurrentLeg();
+        }, 1000);
 
         function updateCambodiaAndUKTime() {
             const cambodiaTime = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Phnom_Penh" }));
@@ -235,28 +231,6 @@
             document.getElementById("uk-time").innerHTML = `Current Time in UK: ${ukTime24Hour} (24-hour) | ${ukTime12Hour} (12-hour)`;
         }
         setInterval(updateCambodiaAndUKTime, 1000);
-
-        const itinerary = [
-            { leg: 1, date: "Nov 3", description: "Depart UK" },
-            { leg: 2, date: "Nov 4", description: "Arrive Siem Reap" },
-            { leg: 3, date: "Nov 5", description: "Siem Reap to Wat Preah Bat Bunthan" },
-            { leg: 4, date: "Nov 6", description: "Wat Preah Bat Bunthan to Svay Leu" },
-            { leg: 5, date: "Nov 7", description: "Svay Leu to Kulen Mountain" },
-            { leg: 6, date: "Nov 8", description: "Kulen Mountain to Tbang" },
-            { leg: 7, date: "Nov 9", description: "Tbang to Angkor Wat" },
-            { leg: 8, date: "Nov 10", description: "Depart Siem Reap" },
-            { leg: 9, date: "Nov 11", description: "Arrive UK" }
-        ];
-
-        function updateCurrentLeg() {
-            const today = new Date().toLocaleDateString("en-US", { month: 'short', day: 'numeric' });
-            const currentLeg = itinerary.find(leg => leg.date === today);
-
-            document.getElementById("current-leg").innerHTML = currentLeg 
-                ? `Current Leg #${currentLeg.leg}: ${currentLeg.description}` 
-                : "Current Leg: Not started or completed";
-        }
-        setInterval(updateCurrentLeg, 1000);
     </script>
 </body>
 </html>
