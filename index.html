@@ -19,7 +19,7 @@
             font-size: 2.5em;
             margin-bottom: 20px;
         }
-        #countdown, #total-hours, #total-minutes, #current-leg, #current-time, #flight-time-remaining, #uk-time {
+       #countdown, #total-hours, #elapsed-hours, #total-minutes, #current-leg, #current-time, #flight-time-remaining, #uk-time {
             font-size: 1.8em;
             margin: 10px 0;
         }
@@ -53,7 +53,8 @@
     <div id="current-time">Current Time in Cambodia: Loading...</div>
     <div id="uk-time">Current Time in UK: Loading...</div>
     <div id="countdown">Loading...</div>
-    <div id="total-hours">Total Hours: Calculating...</div>
+    <div id="elapsed-hours">Hours Elapsed: Calculating...</div>
+    <div id="total-hours">Total Hours Remaining: Calculating...</div>
     <div id="total-minutes">Total Minutes: Calculating...</div>
     <div id="current-leg">Current Leg: Loading...</div>
     <div id="flight-time-remaining"></div>
@@ -165,19 +166,14 @@
     <!-- Spacing at the bottom -->
     <p></p>
 
-    <script>
+   <script>
         const targetDate = new Date("November 11, 2024 12:00:00").getTime();
-        
-        const flights = [
-            { flight: "SQ305", departure: "2024-11-03T09:10:00+00:00", arrival: "2024-11-04T06:00:00+08:00" },
-            { flight: "SQ164", departure: "2024-11-04T08:40:00+08:00", arrival: "2024-11-04T09:45:00+07:00" },
-            { flight: "SQ165", departure: "2024-11-10T16:40:00+07:00", arrival: "2024-11-10T20:05:00+08:00" },
-            { flight: "SQ322", departure: "2024-11-10T23:45:00+08:00", arrival: "2024-11-11T05:55:00+00:00" }
-        ];
+        const startDate = new Date("November 3, 2024 01:00:00").getTime();
 
         function updateCountdown() {
             const now = new Date().getTime();
             const distance = targetDate - now;
+            const elapsed = now - startDate;
 
             if (distance >= 0) {
                 const days = Math.floor(distance / (1000 * 60 * 60 * 24));
@@ -186,12 +182,14 @@
                 const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
                 document.getElementById("countdown").innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-                document.getElementById("total-hours").innerHTML = `Total Hours: ${(distance / (1000 * 60 * 60)).toFixed(1)}`;
+                document.getElementById("total-hours").innerHTML = `Total Hours Remaining: ${(distance / (1000 * 60 * 60)).toFixed(1)}`;
+                document.getElementById("elapsed-hours").innerHTML = `Hours Elapsed: ${(elapsed / (1000 * 60 * 60)).toFixed(1)}`;
                 document.getElementById("total-minutes").innerHTML = `Total Minutes: ${Math.floor(distance / (1000 * 60))}`;
             } else {
                 clearInterval(countdownInterval);
                 document.getElementById("countdown").innerHTML = "It's time!";
                 document.getElementById("total-hours").innerHTML = "";
+                document.getElementById("elapsed-hours").innerHTML = "";
                 document.getElementById("total-minutes").innerHTML = "";
                 document.getElementById("current-leg").innerHTML = "All legs completed!";
             }
