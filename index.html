@@ -56,6 +56,7 @@
     <div id="elapsed-hours">Hours Elapsed: Calculating...</div>
     <div id="total-hours">Total Hours Remaining: Calculating...</div>
     <div id="total-minutes">Total Minutes: Calculating...</div>
+    <div id="percentage-remaining">Calculating...</div>
     <div id="current-leg">Current Leg: Loading...</div>
     <div id="flight-time-remaining"></div>
 
@@ -185,12 +186,18 @@
                 document.getElementById("total-hours").innerHTML = `Total Hours Remaining: ${(distance / (1000 * 60 * 60)).toFixed(1)}`;
                 document.getElementById("elapsed-hours").innerHTML = `Hours Elapsed: ${(elapsed / (1000 * 60 * 60)).toFixed(1)}`;
                 document.getElementById("total-minutes").innerHTML = `Total Minutes: ${Math.floor(distance / (1000 * 60))}`;
+
+             // Calculate Percentage of Time Remaining
+                const totalTime = distance + elapsed;
+                const percentageRemaining = ((distance / totalTime) * 100).toFixed(1);
+                document.getElementById("percentage-remaining").innerHTML = `${percentageRemaining}%`;
             } else {
                 clearInterval(countdownInterval);
                 document.getElementById("countdown").innerHTML = "It's time!";
                 document.getElementById("total-hours").innerHTML = "";
                 document.getElementById("elapsed-hours").innerHTML = "";
                 document.getElementById("total-minutes").innerHTML = "";
+		document.getElementById("percentage-remaining").innerHTML = "";
                 document.getElementById("current-leg").innerHTML = "All legs completed!";
             }
         }
