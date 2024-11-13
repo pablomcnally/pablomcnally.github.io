@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jodie's Cambodia Trip</title>
+    <title>Custom Countdown Timer</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -19,157 +19,131 @@
             font-size: 2.5em;
             margin-bottom: 20px;
         }
-       #countdown, #total-hours, #elapsed-hours, #total-minutes, #current-leg, #current-time, #flight-time-remaining, #uk-time {
-            font-size: 1.8em;
-            margin: 10px 0;
-        }
-        #current-time, #uk-time {
-            font-size: 1.2em;
-            color: #a8d1e7;
-        }
-        table {
-            margin-top: 20px;
-            border-collapse: collapse;
+        #info-table {
             width: 90%;
-            color: #61dafb;
-            font-size: 0.8em;
+            max-width: 500px;
+            margin: 20px auto;
         }
-        th, td {
-            border: 1px solid #61dafb;
-            padding: 8px;
-            text-align: center;
+        #info-table td {
+            padding: 8px 12px;
+            font-size: 1.2em;
         }
-        th {
-            background-color: #444;
+        .label {
+            font-weight: bold;
+            color: #a8d1e7;
+            text-align: left;
+            width: 60%;
         }
-        .highlight {
-            background-color: yellow;
-            color: black;
+        .value {
+            text-align: right;
+            font-size: 1.2em;
+        }
+        .input-group {
+            margin: 10px 0;
+            font-size: 1em;
+        }
+        button {
+            margin-top: 10px;
+            padding: 8px 12px;
+            font-size: 1em;
+            background-color: #61dafb;
+            border: none;
+            cursor: pointer;
+            color: #282c34;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-    <h1>Jodie's Cambodia Trip</h1>
-    <div id="current-time">Current Time in Cambodia: Loading...</div>
-    <div id="uk-time">Current Time in UK: Loading...</div>
-    <div id="countdown">Loading...</div>
-    <div id="elapsed-hours">Hours Elapsed: Calculating...</div>
-    <div id="total-hours">Total Hours Remaining: Calculating...</div>
-    <div id="total-minutes">Total Minutes: Calculating...</div>
-    <div id="percentage-remaining">Calculating remaining %...</div>
-    <div id="current-leg">Current Leg: Loading...</div>
-    <div id="flight-time-remaining"></div>
-
-    <!-- Main Trek Itinerary Table -->
-    <h2>Trek Itinerary</h2>
-    <table id="itinerary-table">
-        <thead>
-            <tr>
-                <th>Leg #</th>
-                <th>Date</th>
-                <th>Location</th>
-                <th>Accommodation</th>
-                <th>Details</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr><td><s>1</td><td><s>Nov 3</td><td><s>Depart UK</td><td><s>N/A</td><td><s>Flight SQ305, 09:10 LHR - 06:00 SIN; connecting Flight SQ164, 08:40 SIN - 09:45 SAI</td></tr>
-            <tr><td><s>2</td><td><s> Nov 4</td><td><s>Arrive Siem Reap</td><td><s>Somadevi Angkor Resort & Spa</td><td><s>Dinner: Local restaurant</td></tr>
-            <tr>
-                <td><s>3</td>
-                <td><a href="https://ridewithgps.com/trips/40622571" target="_blank"><s>Nov 5</a></td>
-                <td><s>Siem Reap to Wat Preah Bat Bunthan</td>
-                <td><s>Campsite</td>
-                <td><s>Distance: 9.6 miles (15.4 km), Mixed terrain<br>Highlights: Passes through villages, views of rural life<br>Meals: Breakfast at hotel, Lunch packed, Dinner at campsite</td>
-            </tr>
-            <tr>
-                <td><s>4</td>
-                <td><a href="https://ridewithgps.com/trips/41039029" target="_blank"><s>Nov 6</a></td>
-                <td><s>Wat Preah Bat Bunthan to Svay Leu</td>
-                <td><s>Svay Leu Pagoda Campsite</td>
-                <td><s>Distance: 9.6 miles (15.4 km), Mixed terrain with some hills<br>Highlights: Passes through dense forests and small villages, glimpses of wildlife and rural life<br>Meals: Breakfast at campsite, Lunch packed, Dinner at campsite</td>
-            </tr>
-            <tr>
-                <td><s>5</td>
-                <td><a href="https://ridewithgps.com/trips/41491983" target="_blank"><s>Nov 7</a></td>
-                <td><s>Svay Leu to Kulen Mountain</td>
-                <td><s>Kulen Mountain Campsite</td>
-                <td><s>Distance: 12.5 miles (20.1 km), Mixed terrain with some hills<br>Highlights: Passes through dense forests, small villages, views of wildlife and rural life<br>Meals: Breakfast at campsite, Lunch packed, Dinner at campsite</td>
-            </tr>
-            <tr>
-                <td><s>6</td>
-                <td><a href="https://ridewithgps.com/trips/42280468" target="_blank"><s>Nov 8</a></td>
-                <td><s>Kulen Mountain to Tbang</td>
-                <td><s>Tbang Pagoda Campsite</td>
-                <td><s>Distance: 13.1 miles (21.1 km), Mixed terrain with hills<br>Highlights: Passes through dense forests, small villages, and views of local wildlife<br>Meals: Breakfast at campsite, Lunch packed, Dinner at campsite</td>
-            </tr>
-            <tr>
-                <td><s>7</td>
-                <td><a href="https://ridewithgps.com/routes/31545397" target="_blank"><s>Nov 9</a></td>
-                <td><s>Tbang to Angkor Wat</td>
-                <td><s>Somadevi Angkor Resort & Spa</td>
-                <td><s>Distance: 4.1 miles (6.6 km), Flat terrain<br>Highlights: Final approach to Angkor Wat, views of historic landmarks<br>Meals: Breakfast at campsite, Lunch at local restaurant, Dinner at local restaurant</td>
-            </tr>
-            <tr><td>8</td><td>Nov 10</td><td>Depart Siem Reap</td><td>N/A</td><td>Flight SQ165, 16:40 SAI - 20:05 SIN, Flight SQ322, 23:45 SIN - 05:55 LHR</td></tr>
-            <tr><td>9</td><td>Nov 11</td><td>Arrive UK</td><td>N/A</td><td>N/A</td></tr>
-        </tbody>
-    </table>
-
-    <!-- Flight Information in UK Time -->
-    <h2>Flight Times (UK Time)</h2>
-    <table id="flight-table">
-        <thead>
-            <tr>
-                <th>Flight</th>
-                <th>Departure (Local)</th>
-                <th>Departure (UK)</th>
-                <th>Arrival (Local)</th>
-                <th>Arrival (UK)</th>
-                <th>Duration</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td><s>Flight SQ305</td>
-                <td><s>Nov 3, 09:10 (LHR)</td>
-                <td><s>Nov 3, 09:10 (UK)</td>
-                <td><s>Nov 4, 06:00 (SIN)</td>
-                <td><s>Nov 3, 22:00 (UK)</td>
-                <td><s>12h 50m</td>
-            </tr>
-            <tr>
-                <td><s>Flight SQ164</td>
-                <td><s>Nov 4, 08:40 (SIN)</td>
-                <td><s>Nov 4, 00:40 (UK)</td>
-                <td><s>Nov 4, 09:45 (REP)</td>
-                <td><s>Nov 4, 02:45 (UK)</td>
-                <td><s>2h 5m</td>
-            </tr>
-            <tr>
-                <td><s>Flight SQ165</td>
-                <td><s>Nov 10, 16:40 (REP)</td>
-                <td><s>Nov 10, 09:40 (UK)</td>
-                <td><s>Nov 10, 20:05 (SIN)</td>
-                <td><s>Nov 10, 12:05 (UK)</td>
-                <td><s>2h 25m</td>
-            </tr>
-            <tr>
-                <td>Flight SQ322</td>
-                <td>Nov 10, 23:45 (SIN)</td>
-                <td>Nov 10, 15:45 (UK)</td>
-                <td>Nov 11, 05:55 (LHR)</td>
-                <td>Nov 11, 05:55 (UK)</td>
-                <td>13h 10m</td>
-            </tr>
-        </tbody>
-    </table>
+    <!-- Editable title input -->
+    <input type="text" id="countdown-title" placeholder="Enter Countdown Title" style="font-size: 2em; text-align: center; width: 100%; max-width: 500px; margin-bottom: 20px; padding: 5px;" />
     
-    <!-- Spacing at the bottom -->
-    <p></p>
+    <!-- Input fields for start and end dates -->
+    <div class="input-group">
+        <label for="start-date">Start Date and Time:</label>
+        <input type="datetime-local" id="start-date">
+    </div>
+    <div class="input-group">
+        <label for="end-date">End Date and Time:</label>
+        <input type="datetime-local" id="end-date">
+    </div>
+    <button onclick="saveData()">Set Countdown</button>
 
-   <script>
-        const targetDate = new Date("November 11, 2024 12:00:00").getTime();
-        const startDate = new Date("November 3, 2024 01:00:00").getTime();
+    <table id="info-table">
+        <tr>
+            <td class="label">Countdown:</td>
+            <td class="value" id="countdown">Loading...</td>
+        </tr>
+        <tr>
+            <td class="label">Hours Elapsed:</td>
+            <td class="value" id="elapsed-hours">Calculating...</td>
+        </tr>
+        <tr>
+            <td class="label">Total Hours Remaining:</td>
+            <td class="value" id="total-hours">Calculating...</td>
+        </tr>
+        <tr>
+            <td class="label">Total Minutes:</td>
+            <td class="value" id="total-minutes">Calculating...</td>
+        </tr>
+        <tr>
+            <td class="label">Percentage of Time Remaining:</td>
+            <td class="value" id="percentage-remaining">Calculating...</td>
+        </tr>
+    </table>
+
+    <script>
+        let startDate, targetDate;
+
+        function loadSavedData() {
+            const savedTitle = localStorage.getItem("countdownTitle");
+            const savedStartDate = localStorage.getItem("startDate");
+            const savedTargetDate = localStorage.getItem("targetDate");
+
+            if (savedTitle) {
+                document.getElementById("countdown-title").value = savedTitle;
+            }
+
+            if (savedStartDate && savedTargetDate) {
+                startDate = new Date(savedStartDate);
+                targetDate = new Date(savedTargetDate);
+
+                document.getElementById("start-date").value = savedStartDate.slice(0, 16);
+                document.getElementById("end-date").value = savedTargetDate.slice(0, 16);
+                
+                startCountdown();
+            }
+        }
+
+        function saveData() {
+            const titleInput = document.getElementById("countdown-title").value;
+            const startDateInput = document.getElementById("start-date").value;
+            const endDateInput = document.getElementById("end-date").value;
+
+            if (titleInput) {
+                localStorage.setItem("countdownTitle", titleInput);
+            }
+
+            if (startDateInput && endDateInput) {
+                startDate = new Date(startDateInput);
+                targetDate = new Date(endDateInput);
+
+                localStorage.setItem("startDate", startDate.toISOString());
+                localStorage.setItem("targetDate", targetDate.toISOString());
+
+                startCountdown();
+            } else {
+                alert("Please enter both start and end dates.");
+            }
+        }
+
+        function startCountdown() {
+            if (startDate && targetDate) {
+                updateCountdown();
+                clearInterval(countdownInterval);
+                countdownInterval = setInterval(updateCountdown, 1000);
+            }
+        }
 
         function updateCountdown() {
             const now = new Date().getTime();
@@ -187,81 +161,22 @@
                 document.getElementById("elapsed-hours").innerHTML = `Hours Elapsed: ${(elapsed / (1000 * 60 * 60)).toFixed(1)}`;
                 document.getElementById("total-minutes").innerHTML = `Total Minutes: ${Math.floor(distance / (1000 * 60))}`;
 
-             // Calculate Percentage of Time Remaining
                 const totalTime = distance + elapsed;
                 const percentageRemaining = ((distance / totalTime) * 100).toFixed(1);
                 document.getElementById("percentage-remaining").innerHTML = `${percentageRemaining}%`;
             } else {
                 clearInterval(countdownInterval);
-                document.getElementById("countdown").innerHTML = "It's time!";
+                document.getElementById("countdown").innerHTML = "Time is up!";
                 document.getElementById("total-hours").innerHTML = "";
                 document.getElementById("elapsed-hours").innerHTML = "";
                 document.getElementById("total-minutes").innerHTML = "";
-		document.getElementById("percentage-remaining").innerHTML = "";
-                document.getElementById("current-leg").innerHTML = "All legs completed!";
+                document.getElementById("percentage-remaining").innerHTML = "";
             }
         }
 
-        function updateFlightCountdown() {
-            const now = new Date();
+        let countdownInterval = setInterval(updateCountdown, 1000);
 
-            const activeFlight = flights.find(flight => 
-                new Date(flight.departure) <= now && new Date(flight.arrival) > now
-            );
-
-            if (activeFlight) {
-                const arrivalTime = new Date(activeFlight.arrival).getTime();
-                const remainingTime = arrivalTime - now.getTime();
-
-                const hours = Math.floor(remainingTime / (1000 * 60 * 60));
-                const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
-
-                document.getElementById("flight-time-remaining").innerHTML = `Flight ${activeFlight.flight} - Time Remaining: ${hours}h ${minutes}m ${seconds}s`;
-            } else {
-                document.getElementById("flight-time-remaining").innerHTML = "";
-            }
-        }
-
-        const countdownInterval = setInterval(updateCountdown, 1000);
-        setInterval(updateFlightCountdown, 1000);
-
-        function updateCambodiaAndUKTime() {
-            const cambodiaTime = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Phnom_Penh" }));
-            const ukTime = new Date(new Date().toLocaleString("en-GB", { timeZone: "Europe/London" }));
-            
-            const cambodiaTime24Hour = cambodiaTime.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            const cambodiaTime12Hour = cambodiaTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
-
-            const ukTime24Hour = ukTime.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            const ukTime12Hour = ukTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
-
-            document.getElementById("current-time").innerHTML = `Current Time in Cambodia: ${cambodiaTime24Hour} (24-hour) | ${cambodiaTime12Hour} (12-hour)`;
-            document.getElementById("uk-time").innerHTML = `Current Time in UK: ${ukTime24Hour} (24-hour) | ${ukTime12Hour} (12-hour)`;
-        }
-        setInterval(updateCambodiaAndUKTime, 1000);
-
-        const itinerary = [
-            { leg: 1, date: "Nov 3", description: "Depart UK" },
-            { leg: 2, date: "Nov 4", description: "Arrive Siem Reap" },
-            { leg: 3, date: "Nov 5", description: "Siem Reap to Wat Preah Bat Bunthan" },
-            { leg: 4, date: "Nov 6", description: "Wat Preah Bat Bunthan to Svay Leu" },
-            { leg: 5, date: "Nov 7", description: "Svay Leu to Kulen Mountain" },
-            { leg: 6, date: "Nov 8", description: "Kulen Mountain to Tbang" },
-            { leg: 7, date: "Nov 9", description: "Tbang to Angkor Wat" },
-            { leg: 8, date: "Nov 10", description: "Depart Siem Reap" },
-            { leg: 9, date: "Nov 11", description: "Arrive UK" }
-        ];
-
-        function updateCurrentLeg() {
-            const today = new Date().toLocaleDateString("en-US", { month: 'short', day: 'numeric' });
-            const currentLeg = itinerary.find(leg => leg.date === today);
-
-            document.getElementById("current-leg").innerHTML = currentLeg 
-                ? `Current Leg #${currentLeg.leg}: ${currentLeg.description}` 
-                : "Current Leg: Not started or completed";
-        }
-        setInterval(updateCurrentLeg, 1000);
+        loadSavedData();
     </script>
 </body>
 </html>
