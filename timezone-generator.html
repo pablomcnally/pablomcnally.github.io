@@ -3,39 +3,56 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Timezone Table Generator (abbrev helper)</title>
+<title>Timezone Table Generator (dark)</title>
 <style>
-  :root{--bg:#f7f8fb;--card:#fff;--accent:#0b5cff;--muted:#666}
-  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;margin:20px;background:var(--bg);color:#111}
+  :root{
+    --bg:#0b0f14;          /* page background */
+    --panel:#0f1720;       /* card background */
+    --muted:#9aa4b2;       /* secondary text */
+    --text:#e6eef6;        /* main text */
+    --accent:#4ea1ff;      /* buttons / accents */
+    --card-border: rgba(255,255,255,0.04);
+    --muted-2:#6f7b86;
+  }
+
+  html,body{height:100%}
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;margin:20px;background:var(--bg);color:var(--text)}
   .wrap{max-width:980px;margin:0 auto}
   header{display:flex;align-items:center;gap:12px;margin-bottom:10px}
   h1{font-size:20px;margin:0}
-  .card{background:var(--card);padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(15,15,30,0.06);margin-bottom:16px}
-  label{display:block;margin:8px 0 6px;font-size:13px;color:#333}
-  input,select,textarea,button{font:inherit;padding:8px;border:1px solid #ddd;border-radius:8px}
+  .card{background:var(--panel);padding:16px;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,0.6);margin-bottom:16px;border:1px solid var(--card-border)}
+  label{display:block;margin:8px 0 6px;font-size:13px;color:var(--muted)}
+  input,select,textarea,button{font:inherit;padding:8px;border:1px solid rgba(255,255,255,0.03);border-radius:8px;background:transparent;color:var(--text)}
+  input::placeholder, textarea::placeholder{color:var(--muted-2)}
   .row{display:flex;gap:8px;flex-wrap:wrap}
   .row > *{flex:1 1 180px}
   table{width:100%;border-collapse:collapse;margin-top:12px}
-  th,td{padding:8px;border:1px solid #e6e8ef;text-align:left;font-size:13px}
-  th{background:#f2f4fa}
+  th,td{padding:8px;border:1px solid rgba(255,255,255,0.04);text-align:left;font-size:13px}
+  th{background:rgba(255,255,255,0.02);color:var(--muted)}
   .controls{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
-  button{cursor:pointer;background:var(--accent);color:white;border:none;padding:10px 12px;border-radius:8px}
-  button.secondary{background:#fff;border:1px solid #cfd8ff;color:var(--accent)}
+  button{cursor:pointer;background:var(--accent);color:#012239;border:none;padding:10px 12px;border-radius:8px}
+  button.secondary{background:transparent;border:1px solid rgba(78,161,255,0.18);color:var(--accent)}
   .small{font-size:12px;color:var(--muted)}
-  .zones-edit{width:100%;min-height:90px;white-space:pre-wrap}
-  .copy-success{color:green;margin-left:8px}
-  .toggles{display:flex;gap:8px;flex-wrap:wrap}
+  .zones-edit{width:100%;min-height:90px;white-space:pre-wrap;border:1px solid rgba(255,255,255,0.03)}
+  .copy-success{color:#7de28b;margin-left:8px}
+  .toggles{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
   .preset-list{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-  .preset-list button{padding:6px 8px;background:#f3f6ff;border:1px solid #e2e8ff;color:var(--accent);border-radius:6px}
+  .preset-list button{padding:6px 8px;background:transparent;border:1px solid rgba(255,255,255,0.02);color:var(--accent);border-radius:6px}
   .abbrev-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
-  .note{font-size:12px;color:#555;margin-top:8px}
+  .note{font-size:12px;color:var(--muted);margin-top:8px}
   footer{font-size:12px;color:var(--muted);margin-top:12px}
+  textarea#raw{background:#071019;border:1px solid rgba(255,255,255,0.03);color:var(--text)}
   @media (max-width:700px){ .row{flex-direction:column} }
 </style>
 </head>
 <body>
   <div class="wrap">
-    <header><h1>Timezone Table Generator</h1><div class="small">Enter a source time, pick a timezone (or use an abbreviation like "PST"), choose columns & presets, then generate a copy-ready HTML table.</div></header>
+    <header>
+      <div>
+        <h1>Timezone Table Generator</h1>
+        <div class="small">Enter a source time, pick a timezone or abbreviation (PST/EST/etc.), choose columns & presets, then generate a copy-ready HTML table.</div>
+      </div>
+    </header>
 
     <div class="card">
       <label for="datetime">Date &amp; time (wall-clock in source timezone)</label>
@@ -45,15 +62,15 @@
       </div>
 
       <div class="abbrev-row">
-        <label style="margin:0">Abbrev / quick pick</label>
-        <select id="abbrevSelect" style="width:220px">
+        <label style="margin:0;color:var(--muted)">Abbrev / quick pick</label>
+        <select id="abbrevSelect" style="width:220px;background:transparent;color:var(--text)">
           <option value="">— pick abbreviation —</option>
         </select>
         <input id="abbrevInput" placeholder="Type e.g. PST or EST" style="max-width:160px" />
         <button id="useAbbrev" class="secondary">Use abbrev</button>
-        <div id="abbrevMsg" class="small" style="margin-left:6px;color:#a00"></div>
+        <div id="abbrevMsg" class="small" style="margin-left:6px;color:#f7c6c6"></div>
       </div>
-  
+      <div class="note">Abbreviations can be ambiguous — I map them to the most-likely IANA zone for news scheduling. Tell me if you want a different mapping.</div>
 
       <label>Pick a preset (or edit the list below)</label>
       <div class="preset-list" id="presets"></div>
@@ -63,10 +80,10 @@
 New York (US) | America/New_York
 Los Angeles (US) | America/Los_Angeles"></textarea>
 
-      <div style="margin-top:8px" class="toggles">
-        <label><input type="checkbox" id="colAbbrev" checked /> Include abbrev</label>
-        <label><input type="checkbox" id="colOffset" checked /> Include UTC offset</label>
-        <label><input type="checkbox" id="colIso" checked /> Include ISO (with seconds)</label>
+      <div class="toggles">
+        <label><input type="checkbox" id="colAbbrev" checked /> <span style="color:var(--muted)">Include abbrev</span></label>
+        <label><input type="checkbox" id="colOffset" checked /> <span style="color:var(--muted)">Include UTC offset</span></label>
+        <label><input type="checkbox" id="colIso" checked /> <span style="color:var(--muted)">Include ISO (with seconds)</span></label>
       </div>
 
       <div class="controls">
@@ -79,30 +96,23 @@ Los Angeles (US) | America/Los_Angeles"></textarea>
       <div id="resultArea" style="margin-top:14px"></div>
     </div>
 
+    <footer>Want friendly labels changed or more presets added? Tell me which cities and I’ll add them.</footer>
+  </div>
+
 <script>
-/*
-  Abbrev helper added.
-  ABBREV_MAP contains my chosen mappings (opinionated — I labelled likely/common mappings).
-  You can expand/modify ABBREV_MAP as needed.
-*/
+/* Abbrev helper + presets. Dark theme only; removed any hosting / overwrite card text. */
 
 const ABBREV_MAP = {
-  // North American
   "PST": "America/Los_Angeles", "PDT": "America/Los_Angeles",
   "MST": "America/Denver", "MDT": "America/Denver",
   "CST": "America/Chicago", "CDT": "America/Chicago",
   "EST": "America/New_York", "EDT": "America/New_York",
-  // Europe
   "GMT": "Etc/GMT", "BST": "Europe/London",
   "CET": "Europe/Berlin", "CEST": "Europe/Berlin",
-  // Asia / Oceania
-  "IST": "Asia/Kolkata", // ambiguous (India / Ireland) — mapped to India here
-  "JST": "Asia/Tokyo",
-  "KST": "Asia/Seoul",
-  "CST-CHINA": "Asia/Shanghai", // helper if you type CST-CHINA
+  "IST": "Asia/Kolkata",
+  "JST": "Asia/Tokyo", "KST": "Asia/Seoul",
   "AEST": "Australia/Sydney", "AEDT": "Australia/Sydney",
-  // misc
-  "UTC": "UTC", "UT": "UTC"
+  "UTC": "UTC"
 };
 
 const PRESETS = {
@@ -204,7 +214,6 @@ function buildAbbrevOptions(){
   }
 }
 
-// format helpers
 function formatForZone(date, tz, opts){ try { return new Intl.DateTimeFormat(undefined, Object.assign({timeZone: tz}, opts)).format(date);}catch(e){return '—';}}
 function tzAbbrev(date, tz){ try { const parts = new Intl.DateTimeFormat('en-US',{timeZone:tz,timeZoneName:'short'}).formatToParts(date); const tzPart = parts.find(p=>p.type==='timeZoneName'); return tzPart?tzPart.value:'';}catch(e){return ''}}
 function utcOffsetString(date, tz){
@@ -239,142 +248,4 @@ function parseLines(text){
 function parseDateTimeLocalToDate(value, sourceTz){
   const [datePart, timePart] = value.split('T');
   if(!datePart || !timePart) return null;
-  const [year,month,day] = datePart.split('-').map(Number);
-  const [hour,minute] = timePart.split(':').map(Number);
-  let guess = Date.UTC(year, month-1, day, hour, minute, 0);
-  let low = guess - 48*3600*1000;
-  let high = guess + 48*3600*1000;
-  for(let i=0;i<40;i++){
-    const mid = Math.floor((low+high)/2);
-    const parts = new Intl.DateTimeFormat('en-US',{timeZone:sourceTz,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(new Date(mid));
-    const y = +parts.find(p=>p.type==='year').value;
-    const mo = +parts.find(p=>p.type==='month').value;
-    const d = +parts.find(p=>p.type==='day').value;
-    const hr = +parts.find(p=>p.type==='hour').value;
-    const mn = +parts.find(p=>p.type==='minute').value;
-    if(y===year && mo===month && d===day && hr===hour && mn===minute){
-      return new Date(mid);
-    }
-    const cmpMid = (y*100000000 + mo*1000000 + d*10000 + hr*100 + mn);
-    const targetComp = (year*100000000 + month*1000000 + day*10000 + hour*100 + minute);
-    if(cmpMid < targetComp) low = mid + 1; else high = mid - 1;
-  }
-  return new Date(guess);
-}
-
-function buildTableHTML(momentDate, sourceTz, targets){
-  const includeISO = colIso.checked;
-  const includeAbbrev = colAbbrev.checked;
-  const includeOffset = colOffset.checked;
-  let html = `<table border="1" cellpadding="6" cellspacing="0">\n  <thead>\n    <tr>\n      <th>Location</th>\n      <th>Local date &amp; time</th>\n      ${includeAbbrev?'<th>Timezone</th>':''}\n      ${includeOffset?'<th>UTC offset</th>':''}\n      ${includeISO?'<th>ISO (local)</th>':''}\n    </tr>\n  </thead>\n  <tbody>\n`;
-  for(const t of targets){
-    try{
-      const formatted = formatForZone(momentDate, t.tz, {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
-      const iso = formatForZone(momentDate, t.tz, {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'});
-      const abbrev = tzAbbrev(momentDate, t.tz) || '';
-      const offset = utcOffsetString(momentDate, t.tz) || '';
-      html += `    <tr>\n      <td>${escapeHtml(t.label)}</td>\n      <td>${escapeHtml(formatted)}</td>\n      ${includeAbbrev?`<td>${escapeHtml(abbrev)}</td>`:''}\n      ${includeOffset?`<td>${escapeHtml(offset)}</td>`:''}\n      ${includeISO?`<td>${escapeHtml(iso)}</td>`:''}\n    </tr>\n`;
-    }catch(e){
-      html += `    <tr><td colspan="5">${escapeHtml(t.label)} — invalid timezone: ${escapeHtml(t.tz)}</td></tr>\n`;
-    }
-  }
-  html += '  </tbody>\n</table>';
-  return html;
-}
-
-function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-generateBtn.addEventListener('click', ()=>{
-  const dtVal = dtInput.value;
-  const sourceTz = tzSelect.value;
-  if(!dtVal || !sourceTz){ alert('Please choose a date/time and source timezone.'); return; }
-  const targetTargets = parseLines(zonesTextarea.value);
-  if(!targetTargets.length){ alert('Please add at least one target.'); return; }
-  const momentDate = parseDateTimeLocalToDate(dtVal, sourceTz);
-  if(!momentDate){ alert('Could not parse the date/time.'); return; }
-  const html = buildTableHTML(momentDate, sourceTz, targetTargets);
-
-  resultArea.innerHTML = '<div class="small">Preview (copy HTML below):</div>' + html + '<div style="margin-top:8px"><strong>Raw HTML:</strong></div>';
-  const rawWrapper = document.createElement('div');
-  rawWrapper.style.marginTop = '8px';
-  const ta = document.createElement('textarea');
-  ta.id = 'raw';
-  ta.style.width = '100%';
-  ta.style.height = '160px';
-  ta.value = html;
-  rawWrapper.appendChild(ta);
-  resultArea.appendChild(rawWrapper);
-});
-
-copyBtn.addEventListener('click', async ()=>{
-  const raw = document.getElementById('raw');
-  if(!raw){ alert('Generate the table first.'); return; }
-  try{
-    await navigator.clipboard.writeText(raw.value);
-    copiedEl.style.display = 'inline';
-    setTimeout(()=>copiedEl.style.display='none',2200);
-  } catch(e){
-    alert('Copy failed — please select the contents of the Raw HTML box and copy manually.');
-  }
-});
-
-downloadBtn.addEventListener('click', ()=>{
-  const raw = document.getElementById('raw');
-  if(!raw){ alert('Generate the table first.'); return; }
-  const full = `<!doctype html><html><head><meta charset="utf-8"><title>timezone-table</title></head><body>${raw.value}</body></html>`;
-  const blob = new Blob([full],{type:'text/html'}); const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download='timezone-table.html'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-});
-
-// Abbrev button behaviour
-function setSourceFromAbbrevInput(abbrev){
-  abbrev = String(abbrev||'').trim().toUpperCase();
-  abbrevMsg.textContent = '';
-  if(!abbrev){ abbrevMsg.textContent = 'Enter an abbreviation (e.g. PST) or pick from dropdown.'; return; }
-  // direct map
-  if(ABBREV_MAP[abbrev]){
-    tzSelect.value = ABBREV_MAP[abbrev];
-    abbrevMsg.textContent = `Using ${abbrev} → ${ABBREV_MAP[abbrev]}`;
-    return;
-  }
-  // handle common suffixes like -CHINA
-  if(ABBREV_MAP[abbrev + '-CHINA']){
-    tzSelect.value = ABBREV_MAP[abbrev + '-CHINA'];
-    abbrevMsg.textContent = `Using ${abbrev}-CHINA → ${ABBREV_MAP[abbrev + '-CHINA']}`;
-    return;
-  }
-  // try direct match in tzSelect (allow user to type full IANA accidentally)
-  if(Array.from(tzSelect.options).some(o=>o.value.toUpperCase()===abbrev || o.textContent.toUpperCase()===abbrev)){
-    const match = Array.from(tzSelect.options).find(o=>o.value.toUpperCase()===abbrev || o.textContent.toUpperCase()===abbrev);
-    tzSelect.value = match.value;
-    abbrevMsg.textContent = `Using IANA zone ${match.value}`;
-    return;
-  }
-  abbrevMsg.textContent = `Unknown abbrev "${abbrev}". I can add mappings if you want.`;
-}
-
-useAbbrevBtn.addEventListener('click', ()=>{
-  const a = abbrevInput.value || abbrevSelect.value;
-  setSourceFromAbbrevInput(a);
-});
-
-abbrevSelect.addEventListener('change', ()=>{
-  const a = abbrevSelect.value;
-  if(a) { abbrevInput.value = a; abbrevMsg.textContent = ''; }
-});
-
-populateSourceZones();
-buildPresets();
-buildAbbrevOptions();
-
-// set default datetime to now
-(function init(){
-  const now = new Date();
-  function pad(n){return String(n).padStart(2,'0');}
-  dtInput.value = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
-  zonesTextarea.value = PRESETS["Common (News)"].join('\n');
-  abbrevInput.value = '';
-})();
-</script>
-</body>
-</html>
+  const [year,month,day] = datePart.split('-').
