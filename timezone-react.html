@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Timezone Table — React</title>
+<!-- Tailwind CDN (play-cdn) for quick styling -->
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50">
+  <div id="root" class="min-h-screen p-6"></div>
+
+  <!-- React + ReactDOM UMD -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <script>
+  const {useState,useEffect} = React;
+
+  const PRESETS = {
+    "News": [
+      "Los Angeles (US) | America/Los_Angeles",
+      "New York (US) | America/New_York",
+      "London (UK) | Europe/London",
+      "Paris (FR) | Europe/Paris",
+      "Tokyo (JP) | Asia/Tokyo",
+      "Sydney (AU) | Australia/Sydney"
+    ]
+  };
+
+  function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function formatForZone(date, tz, opts){ try { return new Intl.DateTimeFormat(undefined, Object.assign({timeZone: tz}, opts)).format(date);}catch(e){return '—';}}
+  function tzAbbrev(date, tz){ try { const parts = new Intl.DateTimeFormat('en-US',{timeZone:tz,timeZoneName:'short'}).formatToParts(date); const p = parts.find(x=>x.type==='timeZoneName'); return p? p.value : ''; }catch(e){return ''}}
+  function utcOffsetString(date, tz){
+    try{
+      const parts = new Intl.DateTimeFormat('en-US',{timeZone:tz, hour12:false, year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}).formatToParts(date);
+      const y=parts.find(p=>p.type==='year').value, mo=parts.find(p=>p.type==='month').value, d=parts.find(p=>p.type==='day').value, hr=parts.find(p=>p.type==='hour').value, mn=parts.find(p=>p.type==='minute').value, sc=parts.find(p=>p.type==='second').value;
+      const asUtc = Date.UTC(+y, +mo-1, +d, +hr, +mn, +sc);
+      const diffMinutes = Math.round((asUtc - date.getTime())/60000);
+      const offsetMinutes = -diffMinutes;
+      const sign = offsetMinutes >= 0 ? '+' : '-';
+      const absMin = Math.abs(offsetMinutes);
+      const hh = String(Math.floor(absMin/60)).padStart(2,'0'); const mm=String(absMin%60).padStart(2,'0');
+      return `UTC${sign}${hh}:${mm}`;
+    }catch(e){return ''}
+  }
+
+  function parseLines(text){ return text.split(/\\r?\\n/).map(l=>l.trim()).filter(Boolean).map(l=>{ const p=l.split('|').map(s=>s.trim()); return p.length===1?{label:p[0],tz:p[0]}:{label:p[0],tz:p[1]}; }); }
+
+  function parseDateTimeLocalToDate(value, sourceTz){
+    const [datePart,timePart] = value.split('T'); if(!datePart||!timePart) return null;
+    const [year,month,day]=datePart.split('-').map(Number); const [hour,minute]=timePart.split(':').map(Number);
+    let guess = Date.UTC(year, month-1, day, hour, minute, 0), low=guess-48*3600*1000, high=guess+48*3600*1000;
+    for(let i=0;i<40;i++){
+      const mid=Math.floor((low+high)/2);
+      const parts=new Intl.DateTimeFormat('en-US',{timeZone:sourceTz,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(new Date(mid));
+      const y=+parts.find(p=>p.type==='year').value, mo=+parts.find(p=>p.type==='month').value, d=+parts.find(p=>p.type==='day').value, hr=+parts.find(p=>p.type==='hour').value, mn=+parts.find(p=>p.type==='minute').value;
+      if(y===year&&mo===month&&d===day&&hr===hour&&mn===minute) return new Date(mid);
+      const cmpMid=(y*100000000 + mo*1000000 + d*10000 + hr*100 + mn);
+      const targetComp=(year*100000000 + month*1000000 + day*10000 + hour*100 + minute);
+      if(cmpMid < targetComp) low = mid + 1; else high = mid - 1;
+    }
+    return new Date(guess);
+  }
+
+  function App(){
+    const [sourceTz,setSourceTz] = useState(() => Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC');
+    const [dt,setDt] = useState('');
+    const [zones,setZones] = useState(PRESETS.News.join('\\n'));
+    const [includeAbbrev,setIncludeAbbrev] = useState(true);
+    const [includeOffset,setIncludeOffset] = useState(true);
+    const [includeIso,setIncludeIso] = useState(true);
+    const [outputHtml,setOutputHtml] = useState('');
+
+    useEffect(()=>{ const now=new Date(); const pad=(n)=>String(n).padStart(2,'0'); setDt(`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`); },[]);
+
+    function generate(){
+      if(!dt||!sourceTz){ alert('Choose date/time and source timezone'); return; }
+      const targets = parseLines(zones);
+      if(!targets.length){ alert('Add targets'); return; }
+      const momentDate = parseDateTimeLocalToDate(dt, sourceTz);
+      if(!momentDate){ alert('Parsing failed'); return; }
+      let html = `<table border="1" cellpadding="6" cellspacing="0">\\n<thead><tr><th>Location</th><th>Local date &amp; time</th>${includeAbbrev?'<th>Timezone</th>':''}${includeOffset?'<th>UTC offset</th>':''}${includeIso?'<th>ISO</th>':''}</tr></thead><tbody>\\n`;
+      for(const t of targets){
+        const formatted = formatForZone(momentDate, t.tz, {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+        const iso = formatForZone(momentDate, t.tz, {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+        const ab = tzAbbrev(momentDate, t.tz) || '';
+        const off = utcOffsetString(momentDate,t.tz) || '';
+        html += `<tr><td>${escapeHtml(t.label)}</td><td>${escapeHtml(formatted)}</td>${includeAbbrev?`<td>${escapeHtml(ab)}</td>`:''}${includeOffset?`<td>${escapeHtml(off)}</td>`:''}${includeIso?`<td>${escapeHtml(iso)}</td>`:''}</tr>\\n`;
+      }
+      html += '</tbody></table>';
+      setOutputHtml(html);
+    }
+
+    async function copyHtml(){
+      if(!outputHtml){ alert('Generate first'); return; }
+      try{ await navigator.clipboard.writeText(outputHtml); alert('Copied to clipboard'); }catch(e){ alert('Clipboard failed — select manually'); }
+    }
+
+    return React.createElement('div',{className:'max-w-4xl mx-auto'},
+      React.createElement('div',{className:'bg-white p-6 rounded-xl shadow mb-6'},
+        React.createElement('h2',{className:'text-lg font-semibold mb-2'},'Timezone Table — React'),
+        React.createElement('div',{className:'flex gap-3 flex-wrap mb-3'},
+          React.createElement('input',{type:'datetime-local',value:dt,onChange:e=>setDt(e.target.value),className:'border p-2 rounded'}),
+          React.createElement('select',{value:sourceTz,onChange:e=>setSourceTz(e.target.value),className:'border p-2 rounded'},
+            ['UTC','America/Los_Angeles','America/Chicago','America/New_York','Europe/London','Europe/Paris','Asia/Tokyo','Australia/Sydney'].map(z=>React.createElement('option',{key:z,value:z},z))
+          )
+        ),
+        React.createElement('textarea',{value:zones,onChange:e=>setZones(e.target.value),className:'w-full border p-2 rounded h-28 mb-3'}),
+        React.createElement('div',{className:'flex gap-3 items-center mb-3'},
+          React.createElement('label',null,React.createElement('input',{type:'checkbox',checked:includeAbbrev,onChange:()=>setIncludeAbbrev(!includeAbbrev),className:'mr-2'}),'Include abbrev'),
+          React.createElement('label',null,React.createElement('input',{type:'checkbox',checked:includeOffset,onChange:()=>setIncludeOffset(!includeOffset),className:'mr-2'}),'Include offset'),
+          React.createElement('label',null,React.createElement('input',{type:'checkbox',checked:includeIso,onChange:()=>setIncludeIso(!includeIso),className:'mr-2'}),'Include ISO')
+        ),
+        React.createElement('div',null,
+          React.createElement('button',{onClick:generate,className:'bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded mr-2'},'Generate'),
+          React.createElement('button',{onClick:copyHtml,className:'border px-4 py-2 rounded'},'Copy')
+        )
+      ),
+      React.createElement('div',{className:'bg-white p-6 rounded-xl shadow'},
+        React.createElement('div',{dangerouslySetInnerHTML: {__html: outputHtml || '<div class=\"text-sm text-slate-500\">Generate to preview table</div>'}})
+      )
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+  </script>
+</body>
+</html>

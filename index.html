@@ -1,182 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Custom Countdown Timer</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            margin: 0;
-            background-color: #282c34;
-            color: #61dafb;
-            text-align: center;
-        }
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 20px;
-        }
-        #info-table {
-            width: 90%;
-            max-width: 500px;
-            margin: 20px auto;
-        }
-        #info-table td {
-            padding: 8px 12px;
-            font-size: 1.2em;
-        }
-        .label {
-            font-weight: bold;
-            color: #a8d1e7;
-            text-align: left;
-            width: 60%;
-        }
-        .value {
-            text-align: right;
-            font-size: 1.2em;
-        }
-        .input-group {
-            margin: 10px 0;
-            font-size: 1em;
-        }
-        button {
-            margin-top: 10px;
-            padding: 8px 12px;
-            font-size: 1em;
-            background-color: #61dafb;
-            border: none;
-            cursor: pointer;
-            color: #282c34;
-            font-weight: bold;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pablo’s Tools</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      text-align: center;
+      padding: 3em;
+      background: #fafafa;
+    }
+    h1 { margin-bottom: 1em; }
+    a {
+      display: block;
+      margin: 0.5em 0;
+      text-decoration: none;
+      color: #0055ff;
+      font-size: 1.2em;
+    }
+  </style>
 </head>
 <body>
-    <!-- Editable title input -->
-    <input type="text" id="countdown-title" placeholder="Enter Countdown Title" style="font-size: 2em; text-align: center; width: 100%; max-width: 500px; margin-bottom: 20px; padding: 5px;" />
-    
-    <!-- Input fields for start and end dates -->
-    <div class="input-group">
-        <label for="start-date">Start Date and Time:</label>
-        <input type="datetime-local" id="start-date">
-    </div>
-    <div class="input-group">
-        <label for="end-date">End Date and Time:</label>
-        <input type="datetime-local" id="end-date">
-    </div>
-    <button onclick="saveData()">Set Countdown</button>
-
-    <table id="info-table">
-        <tr>
-            <td class="label">Countdown:</td>
-            <td class="value" id="countdown">Loading...</td>
-        </tr>
-        <tr>
-            <td class="label">Hours Elapsed:</td>
-            <td class="value" id="elapsed-hours">Calculating...</td>
-        </tr>
-        <tr>
-            <td class="label">Total Hours Remaining:</td>
-            <td class="value" id="total-hours">Calculating...</td>
-        </tr>
-        <tr>
-            <td class="label">Total Minutes:</td>
-            <td class="value" id="total-minutes">Calculating...</td>
-        </tr>
-        <tr>
-            <td class="label">Percentage of Time Remaining:</td>
-            <td class="value" id="percentage-remaining">Calculating...</td>
-        </tr>
-    </table>
-
-    <script>
-        let startDate, targetDate;
-
-        function loadSavedData() {
-            const savedTitle = localStorage.getItem("countdownTitle");
-            const savedStartDate = localStorage.getItem("startDate");
-            const savedTargetDate = localStorage.getItem("targetDate");
-
-            if (savedTitle) {
-                document.getElementById("countdown-title").value = savedTitle;
-            }
-
-            if (savedStartDate && savedTargetDate) {
-                startDate = new Date(savedStartDate);
-                targetDate = new Date(savedTargetDate);
-
-                document.getElementById("start-date").value = savedStartDate.slice(0, 16);
-                document.getElementById("end-date").value = savedTargetDate.slice(0, 16);
-                
-                startCountdown();
-            }
-        }
-
-        function saveData() {
-            const titleInput = document.getElementById("countdown-title").value;
-            const startDateInput = document.getElementById("start-date").value;
-            const endDateInput = document.getElementById("end-date").value;
-
-            if (titleInput) {
-                localStorage.setItem("countdownTitle", titleInput);
-            }
-
-            if (startDateInput && endDateInput) {
-                startDate = new Date(startDateInput);
-                targetDate = new Date(endDateInput);
-
-                localStorage.setItem("startDate", startDate.toISOString());
-                localStorage.setItem("targetDate", targetDate.toISOString());
-
-                startCountdown();
-            } else {
-                alert("Please enter both start and end dates.");
-            }
-        }
-
-        function startCountdown() {
-            if (startDate && targetDate) {
-                updateCountdown();
-                clearInterval(countdownInterval);
-                countdownInterval = setInterval(updateCountdown, 1000);
-            }
-        }
-
-        function updateCountdown() {
-            const now = new Date().getTime();
-            const distance = targetDate - now;
-            const elapsed = now - startDate;
-
-            if (distance >= 0) {
-                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-                document.getElementById("countdown").innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-                document.getElementById("total-hours").innerHTML = `Total Hours Remaining: ${(distance / (1000 * 60 * 60)).toFixed(1)}`;
-                document.getElementById("elapsed-hours").innerHTML = `Hours Elapsed: ${(elapsed / (1000 * 60 * 60)).toFixed(1)}`;
-                document.getElementById("total-minutes").innerHTML = `Total Minutes: ${Math.floor(distance / (1000 * 60))}`;
-
-                const totalTime = distance + elapsed;
-                const percentageRemaining = ((distance / totalTime) * 100).toFixed(1);
-                document.getElementById("percentage-remaining").innerHTML = `${percentageRemaining}%`;
-            } else {
-                clearInterval(countdownInterval);
-                document.getElementById("countdown").innerHTML = "Time is up!";
-                document.getElementById("total-hours").innerHTML = "";
-                document.getElementById("elapsed-hours").innerHTML = "";
-                document.getElementById("total-minutes").innerHTML = "";
-                document.getElementById("percentage-remaining").innerHTML = "";
-            }
-        }
-
-        let countdownInterval = setInterval(updateCountdown, 1000);
-
-        loadSavedData();
-    </script>
+  <h1>Pablo’s Tools</h1>
+  <a href="countdown.html">Countdown Timer</a>
+  <a href="timezone-generator.html">Timezone Table Generator</a>
 </body>
 </html>
