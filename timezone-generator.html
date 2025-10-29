@@ -22,7 +22,7 @@
   button{cursor:pointer;background:var(--accent);color:white;border:none;padding:10px 12px;border-radius:8px}
   button.secondary{background:#fff;border:1px solid #cfd8ff;color:var(--accent)}
   .small{font-size:12px;color:var(--muted)}
-  .zones-edit{width:100%;min-height:90px}
+  .zones-edit{width:100%;min-height:90px;white-space:pre-wrap}
   .copy-success{color:green;margin-left:8px}
   .toggles{display:flex;gap:8px;flex-wrap:wrap}
   .preset-list{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
@@ -43,9 +43,7 @@
       </div>
 
       <label>Pick a preset (or edit the list below)</label>
-      <div class="preset-list" id="presets">
-        <!-- filled by JS -->
-      </div>
+      <div class="preset-list" id="presets"></div>
 
       <label for="zones">Target locations (friendly label | IANA zone) — one per line</label>
       <textarea id="zones" class="zones-edit" placeholder="London (UK) | Europe/London
@@ -68,8 +66,23 @@ Los Angeles (US) | America/Los_Angeles"></textarea>
       <div id="resultArea" style="margin-top:14px"></div>
     </div>
 
+    <div class="card">
+      <strong>Hosting safely (don't overwrite your current index.html)</strong>
+      <ol>
+        <li>Back up your current file: rename <code>index.html</code> → <code>countdown.html</code> (or commit it) so nothing is lost.</li>
+        <li>Upload this file as <code>timezone-generator.html</code> at the repo root, or create a folder <code>/timezone/index.html</code> if you prefer a dedicated path.</li>
+      </ol>
+      <div class="small">If you want, I can provide exact git commands to push this to your repo.</div>
+    </div>
+
+    <footer>Want friendly labels changed or more presets added? Tell me which cities and I’ll add them.</footer>
+  </div>
+
 <script>
-/* Helper: friendly defaults */
+/* Fixed: use real newlines (\n) when joining presets, and set textarea.value/textContent for raw HTML
+   so we don't accidentally insert literal "\n" sequences or double-escape the HTML.
+*/
+
 const PRESETS = {
   "Common (News)": [
     "Los Angeles (US) | America/Los_Angeles",
@@ -125,12 +138,12 @@ const colOffset = document.getElementById('colOffset');
 const colIso = document.getElementById('colIso');
 const presetsDiv = document.getElementById('presets');
 
-// populate sourceTZ
 const popularZones = [
   "UTC","America/Los_Angeles","America/Denver","America/Chicago","America/New_York",
   "America/Sao_Paulo","Europe/London","Europe/Paris","Europe/Berlin","Europe/Moscow",
   "Asia/Kolkata","Asia/Shanghai","Asia/Tokyo","Australia/Sydney","Pacific/Auckland"
 ];
+
 function populateSourceZones(){
   popularZones.forEach(tz=>{
     const opt = document.createElement('option'); opt.value = tz; opt.textContent = tz; tzSelect.appendChild(opt);
@@ -144,17 +157,18 @@ function populateSourceZones(){
   }catch(e){}
 }
 
-// build preset buttons
 function buildPresets(){
   for(const k of Object.keys(PRESETS)){
     const btn = document.createElement('button');
     btn.type='button'; btn.textContent=k;
-    btn.addEventListener('click', ()=>{ zonesTextarea.value = PRESETS[k].join('\\n'); });
+    btn.addEventListener('click', ()=>{ 
+      // NOTE: use a real newline character here ('\n'), not a literal backslash-n string
+      zonesTextarea.value = PRESETS[k].join('\n'); 
+    });
     presetsDiv.appendChild(btn);
   }
 }
 
-// format helpers
 function formatForZone(date, tz, opts){ try { return new Intl.DateTimeFormat(undefined, Object.assign({timeZone: tz}, opts)).format(date);}catch(e){return '—';}}
 function tzAbbrev(date, tz){ try { const parts = new Intl.DateTimeFormat('en-US',{timeZone:tz,timeZoneName:'short'}).formatToParts(date); const tzPart = parts.find(p=>p.type==='timeZoneName'); return tzPart?tzPart.value:'';}catch(e){return ''}}
 function utcOffsetString(date, tz){
@@ -178,16 +192,14 @@ function utcOffsetString(date, tz){
   }catch(e){ return ''; }
 }
 
-// parse "label | IANA" lines into {label, tz}
 function parseLines(text){
-  return text.split(/\\r?\\n/).map(l=>l.trim()).filter(Boolean).map(l=>{
+  return text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean).map(l=>{
     const parts = l.split('|').map(s=>s.trim());
-    if(parts.length===1) return {label:parts[0], tz:parts[0]}; // if user typed just IANA
+    if(parts.length===1) return {label:parts[0], tz:parts[0]};
     return {label:parts[0], tz:parts[1]};
   });
 }
 
-// parse datetime-local into epoch in source tz (binary search approach)
 function parseDateTimeLocalToDate(value, sourceTz){
   const [datePart, timePart] = value.split('T');
   if(!datePart || !timePart) return null;
@@ -204,7 +216,9 @@ function parseDateTimeLocalToDate(value, sourceTz){
     const d = +parts.find(p=>p.type==='day').value;
     const hr = +parts.find(p=>p.type==='hour').value;
     const mn = +parts.find(p=>p.type==='minute').value;
-    if(y===year && mo===month && d===day && hr===hour && mn===minute) return new Date(mid);
+    if(y===year && mo===month && d===day && hr===hour && mn===minute){
+      return new Date(mid);
+    }
     const cmpMid = (y*100000000 + mo*1000000 + d*10000 + hr*100 + mn);
     const targetComp = (year*100000000 + month*1000000 + day*10000 + hour*100 + minute);
     if(cmpMid < targetComp) low = mid + 1; else high = mid - 1;
@@ -212,24 +226,23 @@ function parseDateTimeLocalToDate(value, sourceTz){
   return new Date(guess);
 }
 
-// build html
 function buildTableHTML(momentDate, sourceTz, targets){
   const includeISO = colIso.checked;
   const includeAbbrev = colAbbrev.checked;
   const includeOffset = colOffset.checked;
-  let html = `<table border="1" cellpadding="6" cellspacing="0">\\n  <thead>\\n    <tr>\\n      <th>Location</th>\\n      <th>Local date &amp; time</th>\\n      ${includeAbbrev?'<th>Timezone</th>':''}\\n      ${includeOffset?'<th>UTC offset</th>':''}\\n      ${includeISO?'<th>ISO (local)</th>':''}\\n    </tr>\\n  </thead>\\n  <tbody>\\n`;
+  let html = `<table border="1" cellpadding="6" cellspacing="0">\n  <thead>\n    <tr>\n      <th>Location</th>\n      <th>Local date &amp; time</th>\n      ${includeAbbrev?'<th>Timezone</th>':''}\n      ${includeOffset?'<th>UTC offset</th>':''}\n      ${includeISO?'<th>ISO (local)</th>':''}\n    </tr>\n  </thead>\n  <tbody>\n`;
   for(const t of targets){
     try{
       const formatted = formatForZone(momentDate, t.tz, {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
       const iso = formatForZone(momentDate, t.tz, {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'});
       const abbrev = tzAbbrev(momentDate, t.tz) || '';
       const offset = utcOffsetString(momentDate, t.tz) || '';
-      html += `    <tr>\\n      <td>${escapeHtml(t.label)}</td>\\n      <td>${escapeHtml(formatted)}</td>\\n      ${includeAbbrev?`<td>${escapeHtml(abbrev)}</td>`:''}\\n      ${includeOffset?`<td>${escapeHtml(offset)}</td>`:''}\\n      ${includeISO?`<td>${escapeHtml(iso)}</td>`:''}\\n    </tr>\\n`;
+      html += `    <tr>\n      <td>${escapeHtml(t.label)}</td>\n      <td>${escapeHtml(formatted)}</td>\n      ${includeAbbrev?`<td>${escapeHtml(abbrev)}</td>`:''}\n      ${includeOffset?`<td>${escapeHtml(offset)}</td>`:''}\n      ${includeISO?`<td>${escapeHtml(iso)}</td>`:''}\n    </tr>\n`;
     }catch(e){
-      html += `    <tr><td colspan="5">${escapeHtml(t.label)} — invalid timezone: ${escapeHtml(t.tz)}</td></tr>\\n`;
+      html += `    <tr><td colspan="5">${escapeHtml(t.label)} — invalid timezone: ${escapeHtml(t.tz)}</td></tr>\n`;
     }
   }
-  html += '  </tbody>\\n</table>';
+  html += '  </tbody>\n</table>';
   return html;
 }
 
@@ -244,32 +257,51 @@ generateBtn.addEventListener('click', ()=>{
   const momentDate = parseDateTimeLocalToDate(dtVal, sourceTz);
   if(!momentDate){ alert('Could not parse the date/time.'); return; }
   const html = buildTableHTML(momentDate, sourceTz, targetTargets);
-  resultArea.innerHTML = '<div class="small">Preview (copy HTML below):</div>' + html + '<div style="margin-top:8px"><strong>Raw HTML:</strong><textarea id="raw" style="width:100%;height:160px;margin-top:8px;">' + escapeHtml(html) + '</textarea></div>';
+
+  // Build preview and create a real textarea with the raw HTML (no double-escaping)
+  resultArea.innerHTML = '<div class="small">Preview (copy HTML below):</div>' + html + '<div style="margin-top:8px"><strong>Raw HTML:</strong></div>';
+  const rawWrapper = document.createElement('div');
+  rawWrapper.style.marginTop = '8px';
+  const ta = document.createElement('textarea');
+  ta.id = 'raw';
+  ta.style.width = '100%';
+  ta.style.height = '160px';
+  // set the textarea value to the actual HTML (not escaped), so copying gives usable markup
+  ta.value = html;
+  rawWrapper.appendChild(ta);
+  resultArea.appendChild(rawWrapper);
 });
 
 copyBtn.addEventListener('click', async ()=>{
   const raw = document.getElementById('raw');
   if(!raw){ alert('Generate the table first.'); return; }
-  try{ await navigator.clipboard.writeText(raw.value); copiedEl.style.display='inline'; setTimeout(()=>copiedEl.style.display='none',2200); }catch(e){ alert('Copy failed — select and copy manually.'); }
+  try{
+    await navigator.clipboard.writeText(raw.value);
+    copiedEl.style.display = 'inline';
+    setTimeout(()=>copiedEl.style.display='none',2200);
+  } catch(e){
+    alert('Copy failed — please select the contents of the Raw HTML box and copy manually.');
+  }
 });
 
 downloadBtn.addEventListener('click', ()=>{
-  const raw = document.getElementById('raw'); if(!raw){ alert('Generate first.'); return; }
+  const raw = document.getElementById('raw');
+  if(!raw){ alert('Generate the table first.'); return; }
   const full = `<!doctype html><html><head><meta charset="utf-8"><title>timezone-table</title></head><body>${raw.value}</body></html>`;
   const blob = new Blob([full],{type:'text/html'}); const url = URL.createObjectURL(blob);
   const a = document.createElement('a'); a.href = url; a.download='timezone-table.html'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
 });
 
-// init
+populateSourceZones();
+buildPresets();
+
+// set default datetime to now
 (function init(){
-  populateSourceZones();
-  buildPresets();
-  // set default datetime to now
   const now = new Date();
   function pad(n){return String(n).padStart(2,'0');}
   dtInput.value = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
-  // default preset
-  zonesTextarea.value = PRESETS["Common (News)"].join('\\n');
+  // default preset: populate with actual newlines
+  zonesTextarea.value = PRESETS["Common (News)"].join('\n');
 })();
 </script>
 </body>
