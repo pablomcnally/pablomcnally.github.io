@@ -3,128 +3,289 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Timezone Table — React</title>
-<!-- Tailwind CDN (play-cdn) for quick styling -->
-<script src="https://cdn.tailwindcss.com"></script>
+<title>Timezone Table Generator</title>
+<style>
+  :root{--bg:#f7f8fb;--card:#fff;--accent:#0b5cff;--muted:#666}
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;margin:20px;background:var(--bg);color:#111}
+  .wrap{max-width:980px;margin:0 auto}
+  header{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  h1{font-size:20px;margin:0}
+  .card{background:var(--card);padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(15,15,30,0.06);margin-bottom:16px}
+  label{display:block;margin:8px 0 6px;font-size:13px;color:#333}
+  input,select,textarea,button{font:inherit;padding:8px;border:1px solid #ddd;border-radius:8px}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+  .row > *{flex:1 1 180px}
+  table{width:100%;border-collapse:collapse;margin-top:12px}
+  th,td{padding:8px;border:1px solid #e6e8ef;text-align:left;font-size:13px}
+  th{background:#f2f4fa}
+  .controls{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  button{cursor:pointer;background:var(--accent);color:white;border:none;padding:10px 12px;border-radius:8px}
+  button.secondary{background:#fff;border:1px solid #cfd8ff;color:var(--accent)}
+  .small{font-size:12px;color:var(--muted)}
+  .zones-edit{width:100%;min-height:90px}
+  .copy-success{color:green;margin-left:8px}
+  .toggles{display:flex;gap:8px;flex-wrap:wrap}
+  .preset-list{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .preset-list button{padding:6px 8px;background:#f3f6ff;border:1px solid #e2e8ff;color:var(--accent);border-radius:6px}
+  footer{font-size:12px;color:var(--muted);margin-top:12px}
+  @media (max-width:700px){ .row{flex-direction:column} }
+</style>
 </head>
-<body class="bg-slate-50">
-  <div id="root" class="min-h-screen p-6"></div>
+<body>
+  <div class="wrap">
+    <header><h1>Timezone Table Generator</h1><div class="small">Enter a source time + timezone, choose columns & presets, then generate a copy-ready HTML table.</div></header>
 
-  <!-- React + ReactDOM UMD -->
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <div class="card">
+      <label for="datetime">Date &amp; time (wall-clock in source timezone)</label>
+      <div class="row">
+        <input id="datetime" type="datetime-local" />
+        <select id="sourceTz"></select>
+      </div>
 
-  <script>
-  const {useState,useEffect} = React;
+      <label>Pick a preset (or edit the list below)</label>
+      <div class="preset-list" id="presets">
+        <!-- filled by JS -->
+      </div>
 
-  const PRESETS = {
-    "News": [
-      "Los Angeles (US) | America/Los_Angeles",
-      "New York (US) | America/New_York",
-      "London (UK) | Europe/London",
-      "Paris (FR) | Europe/Paris",
-      "Tokyo (JP) | Asia/Tokyo",
-      "Sydney (AU) | Australia/Sydney"
-    ]
-  };
+      <label for="zones">Target locations (friendly label | IANA zone) — one per line</label>
+      <textarea id="zones" class="zones-edit" placeholder="London (UK) | Europe/London
+New York (US) | America/New_York
+Los Angeles (US) | America/Los_Angeles"></textarea>
 
-  function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+      <div style="margin-top:8px" class="toggles">
+        <label><input type="checkbox" id="colAbbrev" checked /> Include abbrev</label>
+        <label><input type="checkbox" id="colOffset" checked /> Include UTC offset</label>
+        <label><input type="checkbox" id="colIso" checked /> Include ISO (with seconds)</label>
+      </div>
 
-  function formatForZone(date, tz, opts){ try { return new Intl.DateTimeFormat(undefined, Object.assign({timeZone: tz}, opts)).format(date);}catch(e){return '—';}}
-  function tzAbbrev(date, tz){ try { const parts = new Intl.DateTimeFormat('en-US',{timeZone:tz,timeZoneName:'short'}).formatToParts(date); const p = parts.find(x=>x.type==='timeZoneName'); return p? p.value : ''; }catch(e){return ''}}
-  function utcOffsetString(date, tz){
+      <div class="controls">
+        <button id="generate">Generate HTML Table</button>
+        <button id="copy" class="secondary">Copy HTML</button>
+        <button id="download" class="secondary">Download .html</button>
+        <div id="copied" class="copy-success" style="display:none">Copied ✓</div>
+      </div>
+
+      <div id="resultArea" style="margin-top:14px"></div>
+    </div>
+
+    <div class="card">
+      <strong>Hosting safely (don't overwrite your current index.html)</strong>
+      <ol>
+        <li>Back up your current file: rename `index.html` → `countdown-index.html` (or commit it) so nothing is lost.</li>
+        <li>Upload this file as <code>timezone.html</code> at the repo root, or create a folder <code>/timezone/index.html</code> if you prefer a dedicated path (<code>yourname.github.io/timezone/</code>).</li>
+        <li>Push to GitHub. Your existing page at <code>/</code> (index.html) is untouched; the new one is at <code>/timezone.html</code> or <code>/timezone/</code>.</li>
+      </ol>
+      <div class="small">If you want, I can provide the exact git commands — I put them below.</div>
+    </div>
+
+    <footer>
+      Want friendly labels changed or more presets added? Tell me which cities and I’ll add them.
+    </footer>
+  </div>
+
+<script>
+/* Helper: friendly defaults */
+const PRESETS = {
+  "Common (News)": [
+    "Los Angeles (US) | America/Los_Angeles",
+    "Chicago (US) | America/Chicago",
+    "New York (US) | America/New_York",
+    "São Paulo (BR) | America/Sao_Paulo",
+    "London (UK) | Europe/London",
+    "Paris (FR) | Europe/Paris",
+    "Berlin (DE) | Europe/Berlin",
+    "Mumbai (IN) | Asia/Kolkata",
+    "Tokyo (JP) | Asia/Tokyo",
+    "Sydney (AU) | Australia/Sydney",
+    "Auckland (NZ) | Pacific/Auckland"
+  ],
+  "Tech (US-centric)": [
+    "San Francisco (US) | America/Los_Angeles",
+    "Seattle (US) | America/Los_Angeles",
+    "Denver (US) | America/Denver",
+    "Austin (US) | America/Chicago",
+    "New York (US) | America/New_York",
+    "London (UK) | Europe/London",
+    "Bangalore (IN) | Asia/Kolkata",
+    "Tokyo (JP) | Asia/Tokyo"
+  ],
+  "All major": [
+    "Los Angeles (US) | America/Los_Angeles",
+    "Denver (US) | America/Denver",
+    "Chicago (US) | America/Chicago",
+    "New York (US) | America/New_York",
+    "São Paulo (BR) | America/Sao_Paulo",
+    "London (UK) | Europe/London",
+    "Paris (FR) | Europe/Paris",
+    "Berlin (DE) | Europe/Berlin",
+    "Moscow (RU) | Europe/Moscow",
+    "Mumbai (IN) | Asia/Kolkata",
+    "Shanghai (CN) | Asia/Shanghai",
+    "Tokyo (JP) | Asia/Tokyo",
+    "Sydney (AU) | Australia/Sydney",
+    "Auckland (NZ) | Pacific/Auckland"
+  ]
+};
+
+const tzSelect = document.getElementById('sourceTz');
+const dtInput = document.getElementById('datetime');
+const zonesTextarea = document.getElementById('zones');
+const generateBtn = document.getElementById('generate');
+const resultArea = document.getElementById('resultArea');
+const copyBtn = document.getElementById('copy');
+const copiedEl = document.getElementById('copied');
+const downloadBtn = document.getElementById('download');
+const colAbbrev = document.getElementById('colAbbrev');
+const colOffset = document.getElementById('colOffset');
+const colIso = document.getElementById('colIso');
+const presetsDiv = document.getElementById('presets');
+
+// populate sourceTZ
+const popularZones = [
+  "UTC","America/Los_Angeles","America/Denver","America/Chicago","America/New_York",
+  "America/Sao_Paulo","Europe/London","Europe/Paris","Europe/Berlin","Europe/Moscow",
+  "Asia/Kolkata","Asia/Shanghai","Asia/Tokyo","Australia/Sydney","Pacific/Auckland"
+];
+function populateSourceZones(){
+  popularZones.forEach(tz=>{
+    const opt = document.createElement('option'); opt.value = tz; opt.textContent = tz; tzSelect.appendChild(opt);
+  });
+  try{
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if(tz && !Array.from(tzSelect.options).some(o=>o.value===tz)){
+      const o = document.createElement('option'); o.value=tz; o.textContent=tz; tzSelect.insertBefore(o,tzSelect.firstChild);
+    }
+    tzSelect.value = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+  }catch(e){}
+}
+
+// build preset buttons
+function buildPresets(){
+  for(const k of Object.keys(PRESETS)){
+    const btn = document.createElement('button');
+    btn.type='button'; btn.textContent=k;
+    btn.addEventListener('click', ()=>{ zonesTextarea.value = PRESETS[k].join('\\n'); });
+    presetsDiv.appendChild(btn);
+  }
+}
+
+// format helpers
+function formatForZone(date, tz, opts){ try { return new Intl.DateTimeFormat(undefined, Object.assign({timeZone: tz}, opts)).format(date);}catch(e){return '—';}}
+function tzAbbrev(date, tz){ try { const parts = new Intl.DateTimeFormat('en-US',{timeZone:tz,timeZoneName:'short'}).formatToParts(date); const tzPart = parts.find(p=>p.type==='timeZoneName'); return tzPart?tzPart.value:'';}catch(e){return ''}}
+function utcOffsetString(date, tz){
+  try{
+    const dtF = new Intl.DateTimeFormat('en-US',{timeZone:tz, hour12:false, year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    const parts = dtF.formatToParts(date);
+    const y = parts.find(p=>p.type==='year').value;
+    const mo = parts.find(p=>p.type==='month').value;
+    const d = parts.find(p=>p.type==='day').value;
+    const hr = parts.find(p=>p.type==='hour').value;
+    const min = parts.find(p=>p.type==='minute').value;
+    const sec = parts.find(p=>p.type==='second').value;
+    const asUtc = Date.UTC(+y, +mo-1, +d, +hr, +min, +sec);
+    const diffMinutes = Math.round((asUtc - date.getTime())/60000);
+    const offsetMinutes = -diffMinutes;
+    const sign = offsetMinutes >= 0 ? '+' : '-';
+    const absMin = Math.abs(offsetMinutes);
+    const hh = String(Math.floor(absMin/60)).padStart(2,'0');
+    const mm = String(absMin%60).padStart(2,'0');
+    return `UTC${sign}${hh}:${mm}`;
+  }catch(e){ return ''; }
+}
+
+// parse "label | IANA" lines into {label, tz}
+function parseLines(text){
+  return text.split(/\\r?\\n/).map(l=>l.trim()).filter(Boolean).map(l=>{
+    const parts = l.split('|').map(s=>s.trim());
+    if(parts.length===1) return {label:parts[0], tz:parts[0]}; // if user typed just IANA
+    return {label:parts[0], tz:parts[1]};
+  });
+}
+
+// parse datetime-local into epoch in source tz (binary search approach)
+function parseDateTimeLocalToDate(value, sourceTz){
+  const [datePart, timePart] = value.split('T');
+  if(!datePart || !timePart) return null;
+  const [year,month,day] = datePart.split('-').map(Number);
+  const [hour,minute] = timePart.split(':').map(Number);
+  let guess = Date.UTC(year, month-1, day, hour, minute, 0);
+  let low = guess - 48*3600*1000;
+  let high = guess + 48*3600*1000;
+  for(let i=0;i<40;i++){
+    const mid = Math.floor((low+high)/2);
+    const parts = new Intl.DateTimeFormat('en-US',{timeZone:sourceTz,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(new Date(mid));
+    const y = +parts.find(p=>p.type==='year').value;
+    const mo = +parts.find(p=>p.type==='month').value;
+    const d = +parts.find(p=>p.type==='day').value;
+    const hr = +parts.find(p=>p.type==='hour').value;
+    const mn = +parts.find(p=>p.type==='minute').value;
+    if(y===year && mo===month && d===day && hr===hour && mn===minute) return new Date(mid);
+    const cmpMid = (y*100000000 + mo*1000000 + d*10000 + hr*100 + mn);
+    const targetComp = (year*100000000 + month*1000000 + day*10000 + hour*100 + minute);
+    if(cmpMid < targetComp) low = mid + 1; else high = mid - 1;
+  }
+  return new Date(guess);
+}
+
+// build html
+function buildTableHTML(momentDate, sourceTz, targets){
+  const includeISO = colIso.checked;
+  const includeAbbrev = colAbbrev.checked;
+  const includeOffset = colOffset.checked;
+  let html = `<table border="1" cellpadding="6" cellspacing="0">\\n  <thead>\\n    <tr>\\n      <th>Location</th>\\n      <th>Local date &amp; time</th>\\n      ${includeAbbrev?'<th>Timezone</th>':''}\\n      ${includeOffset?'<th>UTC offset</th>':''}\\n      ${includeISO?'<th>ISO (local)</th>':''}\\n    </tr>\\n  </thead>\\n  <tbody>\\n`;
+  for(const t of targets){
     try{
-      const parts = new Intl.DateTimeFormat('en-US',{timeZone:tz, hour12:false, year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}).formatToParts(date);
-      const y=parts.find(p=>p.type==='year').value, mo=parts.find(p=>p.type==='month').value, d=parts.find(p=>p.type==='day').value, hr=parts.find(p=>p.type==='hour').value, mn=parts.find(p=>p.type==='minute').value, sc=parts.find(p=>p.type==='second').value;
-      const asUtc = Date.UTC(+y, +mo-1, +d, +hr, +mn, +sc);
-      const diffMinutes = Math.round((asUtc - date.getTime())/60000);
-      const offsetMinutes = -diffMinutes;
-      const sign = offsetMinutes >= 0 ? '+' : '-';
-      const absMin = Math.abs(offsetMinutes);
-      const hh = String(Math.floor(absMin/60)).padStart(2,'0'); const mm=String(absMin%60).padStart(2,'0');
-      return `UTC${sign}${hh}:${mm}`;
-    }catch(e){return ''}
-  }
-
-  function parseLines(text){ return text.split(/\\r?\\n/).map(l=>l.trim()).filter(Boolean).map(l=>{ const p=l.split('|').map(s=>s.trim()); return p.length===1?{label:p[0],tz:p[0]}:{label:p[0],tz:p[1]}; }); }
-
-  function parseDateTimeLocalToDate(value, sourceTz){
-    const [datePart,timePart] = value.split('T'); if(!datePart||!timePart) return null;
-    const [year,month,day]=datePart.split('-').map(Number); const [hour,minute]=timePart.split(':').map(Number);
-    let guess = Date.UTC(year, month-1, day, hour, minute, 0), low=guess-48*3600*1000, high=guess+48*3600*1000;
-    for(let i=0;i<40;i++){
-      const mid=Math.floor((low+high)/2);
-      const parts=new Intl.DateTimeFormat('en-US',{timeZone:sourceTz,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(new Date(mid));
-      const y=+parts.find(p=>p.type==='year').value, mo=+parts.find(p=>p.type==='month').value, d=+parts.find(p=>p.type==='day').value, hr=+parts.find(p=>p.type==='hour').value, mn=+parts.find(p=>p.type==='minute').value;
-      if(y===year&&mo===month&&d===day&&hr===hour&&mn===minute) return new Date(mid);
-      const cmpMid=(y*100000000 + mo*1000000 + d*10000 + hr*100 + mn);
-      const targetComp=(year*100000000 + month*1000000 + day*10000 + hour*100 + minute);
-      if(cmpMid < targetComp) low = mid + 1; else high = mid - 1;
+      const formatted = formatForZone(momentDate, t.tz, {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+      const iso = formatForZone(momentDate, t.tz, {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+      const abbrev = tzAbbrev(momentDate, t.tz) || '';
+      const offset = utcOffsetString(momentDate, t.tz) || '';
+      html += `    <tr>\\n      <td>${escapeHtml(t.label)}</td>\\n      <td>${escapeHtml(formatted)}</td>\\n      ${includeAbbrev?`<td>${escapeHtml(abbrev)}</td>`:''}\\n      ${includeOffset?`<td>${escapeHtml(offset)}</td>`:''}\\n      ${includeISO?`<td>${escapeHtml(iso)}</td>`:''}\\n    </tr>\\n`;
+    }catch(e){
+      html += `    <tr><td colspan="5">${escapeHtml(t.label)} — invalid timezone: ${escapeHtml(t.tz)}</td></tr>\\n`;
     }
-    return new Date(guess);
   }
+  html += '  </tbody>\\n</table>';
+  return html;
+}
 
-  function App(){
-    const [sourceTz,setSourceTz] = useState(() => Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC');
-    const [dt,setDt] = useState('');
-    const [zones,setZones] = useState(PRESETS.News.join('\\n'));
-    const [includeAbbrev,setIncludeAbbrev] = useState(true);
-    const [includeOffset,setIncludeOffset] = useState(true);
-    const [includeIso,setIncludeIso] = useState(true);
-    const [outputHtml,setOutputHtml] = useState('');
+function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-    useEffect(()=>{ const now=new Date(); const pad=(n)=>String(n).padStart(2,'0'); setDt(`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`); },[]);
+generateBtn.addEventListener('click', ()=>{
+  const dtVal = dtInput.value;
+  const sourceTz = tzSelect.value;
+  if(!dtVal || !sourceTz){ alert('Please choose a date/time and source timezone.'); return; }
+  const targetTargets = parseLines(zonesTextarea.value);
+  if(!targetTargets.length){ alert('Please add at least one target.'); return; }
+  const momentDate = parseDateTimeLocalToDate(dtVal, sourceTz);
+  if(!momentDate){ alert('Could not parse the date/time.'); return; }
+  const html = buildTableHTML(momentDate, sourceTz, targetTargets);
+  resultArea.innerHTML = '<div class="small">Preview (copy HTML below):</div>' + html + '<div style="margin-top:8px"><strong>Raw HTML:</strong><textarea id="raw" style="width:100%;height:160px;margin-top:8px;">' + escapeHtml(html) + '</textarea></div>';
+});
 
-    function generate(){
-      if(!dt||!sourceTz){ alert('Choose date/time and source timezone'); return; }
-      const targets = parseLines(zones);
-      if(!targets.length){ alert('Add targets'); return; }
-      const momentDate = parseDateTimeLocalToDate(dt, sourceTz);
-      if(!momentDate){ alert('Parsing failed'); return; }
-      let html = `<table border="1" cellpadding="6" cellspacing="0">\\n<thead><tr><th>Location</th><th>Local date &amp; time</th>${includeAbbrev?'<th>Timezone</th>':''}${includeOffset?'<th>UTC offset</th>':''}${includeIso?'<th>ISO</th>':''}</tr></thead><tbody>\\n`;
-      for(const t of targets){
-        const formatted = formatForZone(momentDate, t.tz, {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
-        const iso = formatForZone(momentDate, t.tz, {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'});
-        const ab = tzAbbrev(momentDate, t.tz) || '';
-        const off = utcOffsetString(momentDate,t.tz) || '';
-        html += `<tr><td>${escapeHtml(t.label)}</td><td>${escapeHtml(formatted)}</td>${includeAbbrev?`<td>${escapeHtml(ab)}</td>`:''}${includeOffset?`<td>${escapeHtml(off)}</td>`:''}${includeIso?`<td>${escapeHtml(iso)}</td>`:''}</tr>\\n`;
-      }
-      html += '</tbody></table>';
-      setOutputHtml(html);
-    }
+copyBtn.addEventListener('click', async ()=>{
+  const raw = document.getElementById('raw');
+  if(!raw){ alert('Generate the table first.'); return; }
+  try{ await navigator.clipboard.writeText(raw.value); copiedEl.style.display='inline'; setTimeout(()=>copiedEl.style.display='none',2200); }catch(e){ alert('Copy failed — select and copy manually.'); }
+});
 
-    async function copyHtml(){
-      if(!outputHtml){ alert('Generate first'); return; }
-      try{ await navigator.clipboard.writeText(outputHtml); alert('Copied to clipboard'); }catch(e){ alert('Clipboard failed — select manually'); }
-    }
+downloadBtn.addEventListener('click', ()=>{
+  const raw = document.getElementById('raw'); if(!raw){ alert('Generate first.'); return; }
+  const full = `<!doctype html><html><head><meta charset="utf-8"><title>timezone-table</title></head><body>${raw.value}</body></html>`;
+  const blob = new Blob([full],{type:'text/html'}); const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download='timezone-table.html'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+});
 
-    return React.createElement('div',{className:'max-w-4xl mx-auto'},
-      React.createElement('div',{className:'bg-white p-6 rounded-xl shadow mb-6'},
-        React.createElement('h2',{className:'text-lg font-semibold mb-2'},'Timezone Table — React'),
-        React.createElement('div',{className:'flex gap-3 flex-wrap mb-3'},
-          React.createElement('input',{type:'datetime-local',value:dt,onChange:e=>setDt(e.target.value),className:'border p-2 rounded'}),
-          React.createElement('select',{value:sourceTz,onChange:e=>setSourceTz(e.target.value),className:'border p-2 rounded'},
-            ['UTC','America/Los_Angeles','America/Chicago','America/New_York','Europe/London','Europe/Paris','Asia/Tokyo','Australia/Sydney'].map(z=>React.createElement('option',{key:z,value:z},z))
-          )
-        ),
-        React.createElement('textarea',{value:zones,onChange:e=>setZones(e.target.value),className:'w-full border p-2 rounded h-28 mb-3'}),
-        React.createElement('div',{className:'flex gap-3 items-center mb-3'},
-          React.createElement('label',null,React.createElement('input',{type:'checkbox',checked:includeAbbrev,onChange:()=>setIncludeAbbrev(!includeAbbrev),className:'mr-2'}),'Include abbrev'),
-          React.createElement('label',null,React.createElement('input',{type:'checkbox',checked:includeOffset,onChange:()=>setIncludeOffset(!includeOffset),className:'mr-2'}),'Include offset'),
-          React.createElement('label',null,React.createElement('input',{type:'checkbox',checked:includeIso,onChange:()=>setIncludeIso(!includeIso),className:'mr-2'}),'Include ISO')
-        ),
-        React.createElement('div',null,
-          React.createElement('button',{onClick:generate,className:'bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded mr-2'},'Generate'),
-          React.createElement('button',{onClick:copyHtml,className:'border px-4 py-2 rounded'},'Copy')
-        )
-      ),
-      React.createElement('div',{className:'bg-white p-6 rounded-xl shadow'},
-        React.createElement('div',{dangerouslySetInnerHTML: {__html: outputHtml || '<div class=\"text-sm text-slate-500\">Generate to preview table</div>'}})
-      )
-    );
-  }
-
-  ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
-  </script>
+// init
+(function init(){
+  populateSourceZones();
+  buildPresets();
+  // set default datetime to now
+  const now = new Date();
+  function pad(n){return String(n).padStart(2,'0');}
+  dtInput.value = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  // default preset
+  zonesTextarea.value = PRESETS["Common (News)"].join('\\n');
+})();
+</script>
 </body>
 </html>
