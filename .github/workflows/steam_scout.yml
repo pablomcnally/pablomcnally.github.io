@@ -1,0 +1,46 @@
+name: Steam Scout Daily
+
+on:
+  schedule:
+    - cron: "0 9 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Write Google creds to file
+        env:
+          GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
+        run: |
+          echo "$GOOGLE_CREDENTIALS_JSON" > creds.json
+
+      - name: Run Steam Scout
+        env:
+          STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
+          GOOGLE_SHEETS_ID: ${{ secrets.GOOGLE_SHEETS_ID }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/creds.json
+        run: |
+          python steam_scout.py --region US --days 21 --limit 200 --watch_min_ccu 100 --watch_min_pct 25
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: steam-scout-csvs
+          path: |
+            steam_scout_today.csv
+            steam_scout_today_readable.csv
+            steam_scout_watchlist.csv
+            steam_scout_log.csv
+            steam_scout_debug.csv
