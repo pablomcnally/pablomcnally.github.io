@@ -2,9 +2,9 @@ name: Steam Scout Daily
 
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "0 8-22 * * *"      # Hourly 08:00–22:00 (UTC/UK)
+    - cron: "0 22,0,2,4,6 * * *" # 2-hourly overnight
   workflow_dispatch: {}
-
 
 jobs:
   run:
