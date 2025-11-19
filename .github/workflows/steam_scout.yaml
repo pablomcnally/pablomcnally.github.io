@@ -2,8 +2,11 @@ name: Steam Scout Daily
 
 on:
   schedule:
-    - cron: "0 9 * * *"
+    - cron: "30 8 * * *"   # 08:30 UK time
+    - cron: "0 13 * * *"   # 13:00 UK time
+    - cron: "0 17 * * *"   # 17:00 UK time
   workflow_dispatch: {}
+
 
 jobs:
   run:
