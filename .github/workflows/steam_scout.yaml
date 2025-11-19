@@ -2,23 +2,27 @@ name: Steam Scout Daily
 
 on:
   schedule:
-    - cron: "30 8 * * *"   # 08:30 UK time
-    - cron: "0 13 * * *"   # 13:00 UK time
-    - cron: "0 17 * * *"   # 17:00 UK time
+    - cron: "30 8 * * *"   # 08:30 UK (UTC in winter)
+    - cron: "0 13 * * *"   # 13:00 UK
+    - cron: "0 17 * * *"   # 17:00 UK
   workflow_dispatch: {}
-
 
 jobs:
   run:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    permissions:
+      contents: read
 
-      - uses: actions/setup-python@v5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install deps
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
@@ -47,3 +51,4 @@ jobs:
             steam_scout_watchlist.csv
             steam_scout_log.csv
             steam_scout_debug.csv
+
