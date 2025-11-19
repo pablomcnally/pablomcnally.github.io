@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Steam Scout – Live Steam Radar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+      display: flex;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+    }
+    .wrap {
+      max-width: 800px;
+      width: 100%;
+      padding: 2rem;
+    }
+    h1 {
+      margin-top: 0;
+      font-size: 2rem;
+      color: #f97316;
+    }
+    p {
+      line-height: 1.6;
+    }
+    .cards {
+      display: grid;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    a.button {
+      display: inline-block;
+      padding: 0.75rem 1.25rem;
+      border-radius: 999px;
+      background: #f97316;
+      color: #0f172a;
+      text-decoration: none;
+      font-weight: 600;
+      margin-right: 0.5rem;
+    }
+    a.button.secondary {
+      background: #1f2937;
+      color: #e5e7eb;
+      border: 1px solid #4b5563;
+    }
+    small {
+      color: #9ca3af;
+      display: block;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Steam Scout</h1>
+    <p>
+      Steam Scout is a little backend bot that pings the Steam API every day,
+      tracks new and recent releases, and pushes live player stats into a Google
+      Sheet and Looker Studio dashboard for The Escapist.
+    </p>
+    <p>
+      It’s mainly for editorial discovery – finding under-the-radar games with
+      real player traction before everyone else writes about them.
+    </p>
+
+    <div class="cards">
+      <div>
+        <a class="button" href="https://lookerstudio.google.com/u/0/reporting/6a035ebe-d12f-4b31-9347-070fc0de910b/page/p_v2htrk2exd/" target="_blank" rel="noopener">
+          Open Steam Scout Dashboard
+        </a>
+        <a class="button secondary" href="https://docs.google.com/spreadsheets/d/1P4J0QodULzim3XoqdpVMhD6TmUSn3ukz9VvOd3jQaE0/edit?gid=1657007242#gid=1657007242" target="_blank" rel="noopener">
+          View Raw Sheet
+        </a>
+        <small>Replace these links in <code>steam-scout.html</code> with your real URLs.</small>
+      </div>
+    </div>
+
+    <small>Updated daily via GitHub Actions &amp; Google Sheets.</small>
+  </div>
+</body>
+</html>
