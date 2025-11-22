@@ -38,7 +38,7 @@ jobs:
           GOOGLE_SHEETS_ID: ${{ secrets.GOOGLE_SHEETS_ID }}
           GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/creds.json
         run: |
-          python steam_scout.py --region US --days 21 --limit 200 --watch_min_ccu 100 --watch_min_pct 25
+          python steam_scout.py --region US --days 999 --limit 200 --watch_min_ccu 100 --watch_min_pct 25 --no_release_filter
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
