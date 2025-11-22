@@ -252,9 +252,19 @@ def append_history_rows(gs_client: gspread.Client, sheet_id: str, today_rows: Li
     sh = gs_client.open_by_key(sheet_id)
     ws = ensure_worksheet(sh, HISTORY_SHEET_NAME, rows=2000, cols=4)
 
-    existing = ws.get_all_values()
-    if not existing:
+    # Ensure header row is correct
+    values = ws.get_all_values()
+    if not values:
+        # Empty sheet, create header
         ws.append_row(["timestamp_utc", "appid", "game_title", "current_players"])
+        values = ws.get_all_values()
+    else:
+        header = values[0]
+        if "timestamp_utc" not in header:
+            # Legacy / wrong header – reset the sheet once
+            ws.clear()
+            ws.append_row(["timestamp_utc", "appid", "game_title", "current_players"])
+            values = ws.get_all_values()
 
     now_utc = datetime.now(timezone.utc).isoformat(timespec="seconds")
     rows_to_append = []
@@ -274,12 +284,16 @@ def append_history_rows(gs_client: gspread.Client, sheet_id: str, today_rows: Li
     if rows_to_append:
         ws.append_rows(rows_to_append, value_input_option="RAW")
 
-    # Optional: trim history older than 8 days to keep things tidy
+    # Trim history older than 8 days (optional tidy-up)
     values = ws.get_all_values()
     if len(values) <= 1:
         return
 
     header = values[0]
+    if "timestamp_utc" not in header:
+        # Something odd – don't try to trim
+        return
+
     ts_idx = header.index("timestamp_utc")
     eight_days_ago = datetime.now(timezone.utc) - timedelta(days=8)
 
