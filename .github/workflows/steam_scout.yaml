@@ -33,6 +33,13 @@ jobs:
         run: |
           echo "$GOOGLE_SERVICE_ACCOUNT_JSON_B64" | base64 --decode > creds.json
 
+      - name: Debug creds.json
+        run: |
+          echo "Size:"
+          wc -c creds.json
+          echo "Preview:"
+          head -n 10 creds.json
+
       - name: Run Steam Scout
         run: |
           python steam_scout.py --region US --days 999 --limit 200 --watch_min_ccu 100 --watch_min_pct 25 --no_release_filter
