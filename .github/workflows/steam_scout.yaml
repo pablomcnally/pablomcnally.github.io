@@ -35,9 +35,11 @@ jobs:
 
       - name: Debug creds.json
         run: |
-          echo "Size:"
+          echo "B64 length:"
+          echo "${#GOOGLE_SERVICE_ACCOUNT_JSON_B64}"
+          echo "Size of creds.json:"
           wc -c creds.json || true
-          echo "Preview:"
+          echo "Preview of creds.json:"
           head -n 10 creds.json || true
 
       - name: Run Steam Scout
