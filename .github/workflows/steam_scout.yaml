@@ -29,6 +29,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+          - name: Debug GOOGLE_ env keys
+            run: |
+               echo "GOOGLE_* env vars:"
+               env | grep '^GOOGLE_' || echo "None"
+
       - name: Write Google creds
         run: |
           echo "$GOOGLE_SERVICE_ACCOUNT_JSON_B64" | base64 --decode > creds.json
