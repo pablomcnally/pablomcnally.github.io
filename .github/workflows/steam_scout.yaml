@@ -2,8 +2,8 @@ name: Steam Scout Daily
 
 on:
   schedule:
-    - cron: "0 8-22 * * *"      # Hourly 08:00–22:00 (UTC/UK)
-    - cron: "0 22,0,2,4,6 * * *" # 2-hourly overnight
+    - cron: "0 8-21 * * *"        # hourly 08:00–21:00 UTC
+    - cron: "0 22,0,2,4,6 * * *"  # every 2 hours overnight
   workflow_dispatch: {}
 
 jobs:
@@ -19,25 +19,30 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
       - name: Install dependencies
+        shell: bash
         run: |
+          set -e
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Write Google creds to file
+      - name: Write Google creds (base64) to creds.json
+        shell: bash
         env:
-          GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
+          GOOGLE_CREDENTIALS_JSON_B64: ${{ secrets.GOOGLE_CREDENTIALS_JSON_B64 }}
         run: |
-          echo "$GOOGLE_CREDENTIALS_JSON" > creds.json
+          set -e
+          printf '%s' "$GOOGLE_CREDENTIALS_JSON_B64" | base64 --decode > creds.json
 
       - name: Run Steam Scout
+        shell: bash
         env:
           STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
           GOOGLE_SHEETS_ID: ${{ secrets.GOOGLE_SHEETS_ID }}
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/creds.json
         run: |
+          set -e
           python steam_scout.py --region US --days 999 --limit 200 --watch_min_ccu 100 --watch_min_pct 25 --no_release_filter
 
       - name: Upload artifacts
