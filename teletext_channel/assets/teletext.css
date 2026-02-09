@@ -1,10 +1,12 @@
 @font-face {
   font-family: "ModeSeven";
-  src: url("fonts/ModeSeven.woff2") format("woff2");
-  font-weight: normal;
+  src:
+    url("fonts/ModeSeven.woff2") format("woff2"),
+  font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
+
 
 :root{
   --bg: #000;
@@ -33,26 +35,8 @@ html, body {
 
 /* 40 columns x 24 rows feel */
 .teletext{
-  color: #ffd400;
-  background: #000;
-
   font-family: "ModeSeven", monospace;
-  font-size: clamp(16px, 2.15vw, 24px);
-  line-height: 1;
-  letter-spacing: 0;
-
-  padding: 18px 22px;
-  margin: 0;
-
-  user-select: none;
-  white-space: pre;
-  text-rendering: optimizeSpeed;
-
-  /* Keep it sharp – no blur */
-  filter: none;
-  text-shadow: none;
 }
-
 
 @keyframes flicker{
   0%, 100% { opacity: 1; transform: translate(0,0); }
