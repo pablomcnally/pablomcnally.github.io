@@ -35,8 +35,19 @@ html, body {
 
 /* 40 columns x 24 rows feel */
 .teletext{
-  font-family: "ModeSeven", monospace;
+  background: #000 !important;
+  color: #ffd400 !important;   /* <- force Ceefax yellow */
+  font-family: "ModeSeven", monospace !important;
+
+  white-space: pre;
+  line-height: 1;
+  letter-spacing: 0;
+
+  text-shadow: none;
+  filter: none;
+  transform: none;
 }
+
 
 @keyframes flicker{
   0%, 100% { opacity: 1; transform: translate(0,0); }
