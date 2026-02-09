@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Teletext Editor</title>
+  <link rel="stylesheet" href="assets/teletext.css">
+  <style>
+    body { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 12px; }
+    textarea, input { width:100%; box-sizing:border-box; }
+    textarea { height: 70vh; }
+    .panel { background:#050505; padding:12px; border:1px solid #111; border-radius:10px; }
+    button { padding:10px 12px; font: inherit; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <section class="panel">
+    <h2 style="color:var(--white); margin:0 0 10px 0;">Page Builder</h2>
+
+    <label style="color:var(--white);">Status line</label>
+    <input id="statusLine" placeholder="P100  YOURTEXT ..." />
+
+    <label style="color:var(--white); display:block; margin-top:10px;">Big header text</label>
+    <input id="bigHeader" placeholder="CEEFAX" />
+
+    <label style="color:var(--white); display:block; margin-top:10px;">Lines (one per line, optional {C}/{G}/{W}/{R}/{M}/{B})</label>
+    <textarea id="lines"></textarea>
+
+    <div style="display:flex; gap:10px; margin-top:10px;">
+      <button id="download">Download page JSON</button>
+      <button id="copy">Copy JSON</button>
+    </div>
+
+    <p style="color:var(--white); opacity:.8; margin-top:10px;">
+      Tip: add colours by prefixing a line with <code>{C}</code>, <code>{G}</code>, <code>{W}</code>, etc.
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2 style="color:var(--white); margin:0 0 10px 0;">Preview</h2>
+    <main class="screen" style="height:auto; min-height:80vh;">
+      <pre id="preview" class="teletext"></pre>
+    </main>
+  </section>
+
+  <script src="assets/editor.js"></script>
+</body>
+</html>

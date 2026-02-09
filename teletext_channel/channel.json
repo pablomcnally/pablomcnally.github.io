@@ -1,0 +1,8 @@
+{
+  "secondsPerPage": 10,
+  "pages": [
+    "pages/100.json",
+    "pages/101.json",
+    "pages/102.json"
+  ]
+}

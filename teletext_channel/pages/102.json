@@ -1,0 +1,28 @@
+{
+  "statusLine": "P102  WEATHER      Mon 17 Jul   12:59/18",
+  "bigHeader": "WEATHER",
+  "lines": [
+    "",
+    "{W}UK SUMMARY",
+    "",
+    "Dry in places. Wet in other places.",
+    "Windy where it feels like it.",
+    "",
+    "{C}Forecast: 181",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+  ]
+}

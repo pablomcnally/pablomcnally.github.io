@@ -1,0 +1,27 @@
+{
+  "statusLine": "P100  CEEFAX 100   Mon 17 Jul   12:58/53",
+  "bigHeader": "CEEFAX",
+  "lines": [
+    "",
+    "NEW-LOOK BBC 1 MAGAZINE! Many regular",
+    "pages now have new numbers. This is the",
+    "basic page of the magazine.",
+    "",
+    "{C}101 NEWS HEADLINES",
+    "{C}102-119 NEWS IN DETAIL",
+    "{C}121 FINANCE HEADLINES",
+    "{C}131 FT INDEX",
+    "{C}140 SPORT HEADLINES",
+    "{C}160 FOOD GUIDE",
+    "{C}180 WEATHER & TRAVEL INDEX",
+    "{C}181 WEATHER FORECAST",
+    "{C}171-173 TV GUIDES",
+    "",
+    "{G}NEWSFLASH 150   LATEST PAGES 190",
+    "",
+    "",
+    "",
+    "",
+    ""
+  ]
+}
