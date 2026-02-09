@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 """
-Steam Scout v2.0 – with hourly trend logging
+Steam Scout v2.1 – editorial radar with 3-day trends
 
-- Fetches featured/new games from the Steam Store API
-- Looks up current CCU via the Steam Web API
-- Logs every run to a History sheet
-- Computes real 3-day % change per game from History
+- Builds a pool from Steam "featuredcategories":
+    mostplayed, globaltopsellers, topsellers,
+    topnewreleases, new_releases, specials, coming_soon
+- Fetches appdetails + current CCU
+- Logs every run into a History sheet (timestamp, appid, title, CCU)
+- Computes real 3-day % change from History
 - Writes three tabs to Google Sheets:
     - Today
-    - 7d Trends (includes 3-day % change and 3-day oldest CCU)
-    - Watchlist (filtered by CCU + 3-day growth)
+    - 7d Trends (includes 3-day % change + oldest CCU)
+    - Watchlist (CCU + 3-day growth filter)
 """
 
 import os
@@ -28,7 +30,7 @@ import gspread
 # --------------------------------------------------------------------
 
 HEADERS = {
-    "User-Agent": "Escapist-SteamScout/2.0 (+editorial discovery)"
+    "User-Agent": "Escapist-SteamScout/2.1 (+editorial discovery)"
 }
 
 TODAY_CSV = "steam_scout_today.csv"
@@ -41,12 +43,13 @@ TRENDS_SHEET_NAME = "7d Trends"
 WATCHLIST_SHEET_NAME = "Watchlist"
 HISTORY_SHEET_NAME = "History"
 
+
 # --------------------------------------------------------------------
 # Helpers – HTTP
 # --------------------------------------------------------------------
 
-
 def http_get_json(url: str, params: Dict[str, Any] = None, timeout: int = 15) -> Any:
+    """Simple GET with retries, returns parsed JSON or None."""
     for attempt in range(3):
         try:
             r = requests.get(url, params=params, headers=HEADERS, timeout=timeout)
@@ -62,11 +65,18 @@ def http_get_json(url: str, params: Dict[str, Any] = None, timeout: int = 15) ->
 # Steam data collection
 # --------------------------------------------------------------------
 
-
 def fetch_featured_pool(region: str, limit: int, debug: bool = False) -> List[int]:
     """
-    Use Steam Storefront featuredcategories to build an appid pool.
-    We focus on new/featured things vs all of Steam.
+    Build an app pool from Steam Storefront featuredcategories.
+
+    Includes:
+      - mostplayed         (currently most played overall)
+      - globaltopsellers   (global top sellers)
+      - topsellers         (regional top sellers)
+      - topnewreleases     (hot new stuff)
+      - new_releases       (all new releases)
+      - specials           (discounts/promos)
+      - coming_soon        (still subject to release filter unless --no_release_filter)
     """
     url = "https://store.steampowered.com/api/featuredcategories"
     data = http_get_json(url, params={"cc": region, "l": "en"})
@@ -74,8 +84,18 @@ def fetch_featured_pool(region: str, limit: int, debug: bool = False) -> List[in
         print("[error] failed to fetch featuredcategories", file=sys.stderr)
         return []
 
-    pool_ids = []
-    buckets = ["new_releases", "specials", "topnewreleases", "coming_soon", "topsellers"]
+    pool_ids: List[int] = []
+
+    # Order matters – earlier buckets get priority when we trim to 'limit'
+    buckets = [
+        "mostplayed",
+        "globaltopsellers",
+        "topsellers",
+        "topnewreleases",
+        "new_releases",
+        "specials",
+        "coming_soon",
+    ]
 
     for b in buckets:
         section = data.get(b) or {}
@@ -95,9 +115,7 @@ def fetch_featured_pool(region: str, limit: int, debug: bool = False) -> List[in
 
 
 def fetch_appdetails(appid: int, region: str) -> Dict[str, Any]:
-    """
-    Steam Store appdetails for metadata.
-    """
+    """Steam Store appdetails for metadata."""
     url = "https://store.steampowered.com/api/appdetails"
     data = http_get_json(url, params={"appids": appid, "cc": region, "l": "en"})
     if not data or str(appid) not in data:
@@ -114,7 +132,6 @@ def parse_release_date(raw: str) -> datetime | None:
     if not raw:
         return None
     raw = raw.strip()
-    # Try a few Steam formats
     fmts = ["%d %b, %Y", "%b %d, %Y", "%d %B, %Y", "%B %d, %Y", "%Y-%m-%d"]
     for fmt in fmts:
         try:
@@ -125,9 +142,7 @@ def parse_release_date(raw: str) -> datetime | None:
 
 
 def extract_basic_row(appid: int, ad: Dict[str, Any], region: str) -> Dict[str, Any]:
-    """
-    Turn an appdetails payload into our core row structure.
-    """
+    """Turn an appdetails payload into our core row structure."""
     name = ad.get("name") or ""
     release = ad.get("release_date") or {}
     release_str = release.get("date") or ""
@@ -137,14 +152,12 @@ def extract_basic_row(appid: int, ad: Dict[str, Any], region: str) -> Dict[str, 
     publisher = ", ".join(publishers) if publishers else ""
 
     price_overview = ad.get("price_overview") or {}
-    initial = price_overview.get("initial")  # in cents
-    final = price_overview.get("final")
+    final = price_overview.get("final")          # in cents
     currency = price_overview.get("currency") or "USD"
 
     if ad.get("is_free"):
         price_str = "Free"
     elif final is not None:
-        # convert cents to major unit
         price_value = final / 100.0
         symbol = "$" if currency == "USD" else ""
         price_str = f"{symbol}{price_value:.2f}"
@@ -169,7 +182,7 @@ def extract_basic_row(appid: int, ad: Dict[str, Any], region: str) -> Dict[str, 
         "Genres": genre_names,
         "Categories": category_names,
         "Store Link": store_link,
-        # placeholders – filled later
+        # Live data – filled later
         "Current Players (Latest)": 0,
         "Avg Players (7 Days)": 0,
         "Peak Players (7 Days)": 0,
@@ -186,6 +199,7 @@ def extract_basic_row(appid: int, ad: Dict[str, Any], region: str) -> Dict[str, 
 
 
 def fetch_current_players(appid: int, api_key: str) -> int:
+    """Steam Web API – current CCU for a given appid."""
     if not api_key:
         return 0
     url = "https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/"
@@ -202,7 +216,6 @@ def fetch_current_players(appid: int, api_key: str) -> int:
 # CSV / Sheets helpers
 # --------------------------------------------------------------------
 
-
 def save_csv(path: str, rows: List[Dict[str, Any]], headers: List[str]) -> None:
     with open(path, "w", encoding="utf-8-sig", newline="") as f:
         w = csv.DictWriter(f, fieldnames=headers)
@@ -212,11 +225,12 @@ def save_csv(path: str, rows: List[Dict[str, Any]], headers: List[str]) -> None:
 
 
 def get_gspread_client() -> gspread.Client:
-    # creds.json should already exist (GitHub Action writes it)
+    # creds.json should already exist (GitHub Action writes it from secret)
     return gspread.service_account(filename="creds.json")
 
 
-def ensure_worksheet(sh: gspread.Spreadsheet, title: str, rows: int = 1000, cols: int = 30) -> gspread.Worksheet:
+def ensure_worksheet(sh: gspread.Spreadsheet, title: str,
+                     rows: int = 1000, cols: int = 30) -> gspread.Worksheet:
     try:
         return sh.worksheet(title)
     except gspread.WorksheetNotFound:
@@ -227,7 +241,6 @@ def push_sheet_tab(gs_client: gspread.Client, sheet_id: str, tab_name: str,
                    headers: List[str], rows: List[Dict[str, Any]]) -> None:
     sh = gs_client.open_by_key(sheet_id)
     ws = ensure_worksheet(sh, tab_name, rows=max(1000, len(rows) + 10), cols=len(headers) + 2)
-    # Clear and write fresh
     ws.clear()
     values = [headers]
     for r in rows:
@@ -240,8 +253,8 @@ def push_sheet_tab(gs_client: gspread.Client, sheet_id: str, tab_name: str,
 # History logging + 3-day trend calculation
 # --------------------------------------------------------------------
 
-
-def append_history_rows(gs_client: gspread.Client, sheet_id: str, today_rows: List[Dict[str, Any]]) -> None:
+def append_history_rows(gs_client: gspread.Client, sheet_id: str,
+                        today_rows: List[Dict[str, Any]]) -> None:
     """
     Append snapshot rows to the History tab:
     timestamp_utc, appid, game_title, current_players
@@ -252,16 +265,15 @@ def append_history_rows(gs_client: gspread.Client, sheet_id: str, today_rows: Li
     sh = gs_client.open_by_key(sheet_id)
     ws = ensure_worksheet(sh, HISTORY_SHEET_NAME, rows=2000, cols=4)
 
-    # Ensure header row is correct
+    # Ensure header is correct
     values = ws.get_all_values()
     if not values:
-        # Empty sheet, create header
         ws.append_row(["timestamp_utc", "appid", "game_title", "current_players"])
         values = ws.get_all_values()
     else:
         header = values[0]
         if "timestamp_utc" not in header:
-            # Legacy / wrong header – reset the sheet once
+            # Legacy/wrong header – reset sheet once
             ws.clear()
             ws.append_row(["timestamp_utc", "appid", "game_title", "current_players"])
             values = ws.get_all_values()
@@ -291,7 +303,6 @@ def append_history_rows(gs_client: gspread.Client, sheet_id: str, today_rows: Li
 
     header = values[0]
     if "timestamp_utc" not in header:
-        # Something odd – don't try to trim
         return
 
     ts_idx = header.index("timestamp_utc")
@@ -316,8 +327,8 @@ def compute_3d_trends_from_history(gs_client: gspread.Client, sheet_id: str,
                                    appids: List[int]) -> Dict[int, Dict[str, Any]]:
     """
     From History tab, compute per-appid:
-        - ccu_3d_ago  (oldest CCU in last 3 days)
-        - pct_change_3d (latest vs oldest)
+        - ccu_3d_ago   (oldest CCU in last 3 days)
+        - pct_change_3d (latest vs oldest, %)
     Returns {appid: {ccu_3d_ago, pct_change_3d}}
     """
     result: Dict[int, Dict[str, Any]] = {}
@@ -381,11 +392,10 @@ def compute_3d_trends_from_history(gs_client: gspread.Client, sheet_id: str,
 # Main
 # --------------------------------------------------------------------
 
-
 def main() -> None:
     parser = argparse.ArgumentParser(description="Steam Scout – editorial radar with 3-day trends")
     parser.add_argument("--region", default="US", help="Steam store country code, e.g. US, GB, DE")
-    parser.add_argument("--days", type=int, default=21, help="Lookback for release date filter")
+    parser.add_argument("--days", type=int, default=21, help="Release date lookback for filter")
     parser.add_argument("--limit", type=int, default=200, help="Max number of apps to consider from featured pool")
     parser.add_argument("--watch_min_ccu", type=int, default=100, help="Watchlist minimum CCU")
     parser.add_argument("--watch_min_pct", type=float, default=25.0, help="Watchlist minimum 3-day %% growth")
@@ -437,7 +447,6 @@ def main() -> None:
             continue
 
         row = extract_basic_row(appid, ad, args.region)
-
         ccu = fetch_current_players(appid, steam_key)
         row["Current Players (Latest)"] = ccu
 
@@ -493,7 +502,7 @@ def main() -> None:
     appids = [r["Steam App ID"] for r in today_rows]
     trends_3d = compute_3d_trends_from_history(gs_client, sheet_id, appids)
 
-    # 4) Build 7d Trends rows (for now 7-day fields are placeholders, 3-day is real)
+    # 4) Build 7d Trends rows (7-day fields still placeholders; 3-day is real)
     trend_rows: List[Dict[str, Any]] = []
     for row in today_rows:
         appid = row["Steam App ID"]
