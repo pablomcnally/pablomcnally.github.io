@@ -116,11 +116,12 @@ function buildScreen(page) {
   else out.push(padOrTrim("", width));
 
   // Optional big header (5 rows)
-  if (page.bigHeader) {
-    out.push(...makeBigHeader(page.bigHeader, width));
-  } else {
-    out.push(...Array(5).fill(padOrTrim("", width)));
-  }
+if (page.bigHeader) {
+  const headerLines = makeBigHeader(page.bigHeader, width).map(l => padOrTrim(l, width));
+  out.push(...headerLines);
+} else {
+  out.push(...Array(5).fill(padOrTrim("", width)));
+}
 
   // Body lines
   const body = (page.lines || []).slice(0, height - out.length);

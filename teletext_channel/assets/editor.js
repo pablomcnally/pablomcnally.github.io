@@ -81,8 +81,13 @@ function buildScreen(page) {
   const status = page.statusLine || "";
   out.push(padOrTrim(status, width));
 
-  if (page.bigHeader) out.push(...makeBigHeader(page.bigHeader, width));
-  else out.push(...Array(5).fill(padOrTrim("", width)));
+if (page.bigHeader) {
+  const headerLines = makeBigHeader(page.bigHeader, width).map(l => padOrTrim(l, width));
+  out.push(...headerLines);
+} else {
+  out.push(...Array(5).fill(padOrTrim("", width)));
+}
+
 
   const body = (page.lines || []).slice(0, height - out.length);
   while (body.length < (height - out.length)) body.push("");
